@@ -1,0 +1,13 @@
+{
+    "id": "rainSectorThreatMusic",
+    "name": "Rain Sector Threat Music",
+    "author": "Error, String Expected: Got Nil",
+    "version": "0.0",
+    "description": "Adds Rain World's context-sensitive threat music to battles.",
+    "gameVersion": "0.97a-RC11",
+    "jars":["jars/Rain Sector Threat Music.jar"],
+    #"modPlugin":"data.scripts.NRGModPlugin",
+    "dependencies": [
+        
+    ]
+}

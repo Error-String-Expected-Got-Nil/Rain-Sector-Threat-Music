@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="RSTM:jar">
+    <output-path>$PROJECT_DIR$/jars/</output-path>
+    <root id="archive" name="Rain Sector Threat Music.jar">
+      <element id="module-output" name="Rain Sector Threat Music" />
+    </root>
+  </artifact>
+</component>
