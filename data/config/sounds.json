@@ -1,9 +1,52 @@
 {
+    ##### Debugging/Testing #####
+
     "RSTM_debug_HI_SHAKER": [
         {"file": "sounds/RSTM/testing/hi_shaker.ogg", "pitch": 1, "volume": 1}
     ],
-    
+
     "RSTM_debug_HI_PERCUSSION": [
         {"file": "sounds/RSTM/testing/hi_percussion.ogg", "pitch": 1, "volume": 1}
-    ]
+    ],
+
+    ##### Actual #####
+
+    ### Sky Islands ###
+
+    "RSTM_SI_arps": [
+        {"file": "sounds/RSTM/layered/SI/arps.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_SI_bass": [
+        {"file": "sounds/RSTM/layered/SI/bass.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_SI_kick": [
+        {"file": "sounds/RSTM/layered/SI/kick.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_SI_noise": [
+        {"file": "sounds/RSTM/layered/SI/noise.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    # Panic seems to be unused by Rain World and by extension this mod, but there isn't much reason to remove it.
+    "RSTM_SI_panic": [
+        {"file": "sounds/RSTM/layered/SI/panic.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_SI_perc1": [
+        {"file": "sounds/RSTM/layered/SI/perc1.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_SI_shaker": [
+        {"file": "sounds/RSTM/layered/SI/shaker.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_SI_snare": [
+        {"file": "sounds/RSTM/layered/SI/snare.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_SI_weird": [
+        {"file": "sounds/RSTM/layered/SI/weird.ogg", "pitch": 1, "volume": 1}
+    ],
 }

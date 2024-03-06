@@ -6,7 +6,7 @@
     "description": "Adds Rain World's context-sensitive threat music to battles.",
     "gameVersion": "0.97a-RC11",
     "jars":["jars/Rain Sector Threat Music.jar"],
-    #"modPlugin":"data.scripts.NRGModPlugin",
+    "modPlugin":"data.scripts.plugins.RSTMModPlugin",
     "dependencies": [
         
     ]
