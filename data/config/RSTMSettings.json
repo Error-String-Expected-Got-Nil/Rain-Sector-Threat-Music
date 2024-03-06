@@ -7,4 +7,7 @@
     # j/l: Change jukebox track
     # n: Toggle displaying threat information on-screen on or off
     "debugMode": true,
+
+    # Global volume control
+    "globalVolumeModifier": 1,
 }

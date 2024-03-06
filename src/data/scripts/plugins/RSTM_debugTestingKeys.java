@@ -6,14 +6,18 @@ import com.fs.starfarer.api.SoundPlayerAPI;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.input.InputEventAPI;
 
+import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 
 public class RSTM_debugTestingKeys extends BaseEveryFrameCombatPlugin {
     private static final char testOn1 = 'j';
     private static final char testOff1 = 'n';
     private static final char testOn2 = 'k';
     private static final char testOff2 = 'm';
+
+    private static final char test3 = 'l';
 
     private SoundAPI debugSong1 = null;
     private SoundAPI debugSong2 = null;
@@ -55,6 +59,13 @@ public class RSTM_debugTestingKeys extends BaseEveryFrameCombatPlugin {
                         debugSong2.stop();
                     } else {
                         logger.info("Not playing song 2");
+                    }
+                } else if (key == test3) {
+                    try {
+                        Object value = Global.getSettings().getSettingsJSON().get("campaignMusicVolumeMult");
+                        logger.info("[RSTM] campaignMusicVolumeMult value: " + value);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
