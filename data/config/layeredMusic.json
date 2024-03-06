@@ -17,6 +17,16 @@
         {"id": "SI_6", "sound": "RSTM_SI_arps"},
         {"id": "SI_7", "sound": "RSTM_SI_snare"},
         {"id": "SI_8", "sound": "RSTM_SI_noise"},
+
+        {"id": "LM_1", "sound": "RSTM_LM_kick"},
+        {"id": "LM_2", "sound": "RSTM_LM_perc2"},
+        {"id": "LM_3", "sound": "RSTM_LM_snare"},
+        {"id": "LM_4", "sound": "RSTM_LM_perc1"},
+        {"id": "LM_5", "sound": "RSTM_LM_bass"},
+        {"id": "LM_6", "sound": "RSTM_LM_pad"},
+        {"id": "LM_7", "sound": "RSTM_LM_arps"},
+        {"id": "LM_8", "sound": "RSTM_LM_weird"},
+        {"id": "LM_9", "sound": "RSTM_LM_noise"},
     ],
 
     "tracks": [
@@ -27,6 +37,12 @@
             "layers":      ["SI_1", "SI_2", "SI_3", "SI_4", "SI_5", "SI_6", "SI_7", "SI_8"],
             "threatCurve": [   100,    200,    300,    400,    500,    600,    700,    800],
             # This threat curve is a placeholder and subject to change when I actually make the threat level measuring system.
+        },
+
+        {
+            "id": "waterfront_complex",
+            "layers":      ["LM_1", "LM_2", "LM_3", "LM_4", "LM_5", "LM_6", "LM_7", "LM_8", "LM_9"],
+            "threatCurve": [   100,    200,    300,    400,    500,    600,    700,    800,    900],
         },
     ],
 }

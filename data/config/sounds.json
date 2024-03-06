@@ -49,4 +49,42 @@
     "RSTM_SI_weird": [
         {"file": "sounds/RSTM/layered/SI/weird.ogg", "pitch": 1, "volume": 1}
     ],
+
+    ### Waterfront Complex ###
+
+    "RSTM_LM_arps": [
+        {"file": "sounds/RSTM/layered/LM/arps.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_LM_bass": [
+        {"file": "sounds/RSTM/layered/LM/bass.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_LM_kick": [
+        {"file": "sounds/RSTM/layered/LM/kick.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_LM_noise": [
+        {"file": "sounds/RSTM/layered/LM/noise.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_LM_pad": [
+        {"file": "sounds/RSTM/layered/LM/pad.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_LM_perc1": [
+        {"file": "sounds/RSTM/layered/LM/perc1.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_LM_perc2": [
+        {"file": "sounds/RSTM/layered/LM/perc2.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_LM_snare": [
+        {"file": "sounds/RSTM/layered/LM/snare.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_LM_weird": [
+        {"file": "sounds/RSTM/layered/LM/weird.ogg", "pitch": 1, "volume": 1}
+    ],
 }
