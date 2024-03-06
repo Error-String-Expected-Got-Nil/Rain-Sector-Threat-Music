@@ -8,6 +8,9 @@
     "jars":["jars/Rain Sector Threat Music.jar"],
     "modPlugin":"data.scripts.plugins.RSTMModPlugin",
     "dependencies": [
-        
+        {
+            "id": "lw_lazylib",
+            "name": "LazyLib"
+        }
     ]
 }

@@ -2,6 +2,7 @@ package data.scripts.plugins;
 
 import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
+import data.scripts.RSTM.RSTM_LayeredMusicTrack;
 import data.scripts.RSTM.RSTM_MusicLayer;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -9,7 +10,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RSTMModPlugin extends BaseModPlugin {
@@ -19,7 +22,10 @@ public class RSTMModPlugin extends BaseModPlugin {
     private static boolean debugMode;
     private static float globalVolumeModifier;
 
-    private static final Map<String, RSTM_MusicLayer> musicLayers = new HashMap<String, RSTM_MusicLayer>();
+    public static final Map<String, RSTM_MusicLayer> musicLayers = new HashMap<>();
+    public static final Map<String, RSTM_LayeredMusicTrack> musicTracks = new HashMap<>();
+    public static final List<RSTM_LayeredMusicTrack> tracklist = new ArrayList<>();
+    private static boolean hadInvalidTrack = false;
 
     @Override
     public void onApplicationLoad() throws Exception {
@@ -65,6 +71,39 @@ public class RSTMModPlugin extends BaseModPlugin {
         } catch (JSONException e) {
             logger.error("[RSTM] Failed to load music layers");
             throw new RuntimeException(e);
+        }
+
+        // Load layered music track objects from JSON
+        try {
+            JSONArray tracks = layerSettingsJSON.getJSONArray("tracks");
+
+            for (int index = 0; index < tracks.length(); index++) {
+                RSTM_LayeredMusicTrack track = new RSTM_LayeredMusicTrack(tracks.getJSONObject(index));
+
+                String trackID = track.getTrackID();
+
+                if (track.isInvalid()) {
+                    hadInvalidTrack = true;
+                } else {
+                    if (musicTracks.containsKey(trackID)) {
+                        logger.warn("[RSTM] Duplicate music track ID " + trackID + " encountered, discarding.");
+                        continue;
+                    }
+
+                    musicTracks.put(trackID, track);
+                    tracklist.add(track);
+                }
+            }
+        } catch (JSONException e) {
+            logger.error("[RSTM] Failed to load layered music tracks");
+            throw new RuntimeException(e);
+        }
+
+        logger.info("[RSTM] Loaded " + tracklist.size() + " layered music tracks and " + musicLayers.size() +
+                " music layers.");
+        if (hadInvalidTrack) {
+            logger.warn("[RSTM] Some music tracks did not load properly and were discarded! See warnings tagged " +
+                    "with [RSTM] above for more details.");
         }
     }
 
