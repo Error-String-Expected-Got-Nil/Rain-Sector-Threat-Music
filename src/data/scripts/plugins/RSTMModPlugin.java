@@ -30,6 +30,8 @@ public class RSTMModPlugin extends BaseModPlugin {
     @Override
     public void onApplicationLoad() throws Exception {
         Logger logger = Global.getLogger(this.getClass());
+        logger.info("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>");
+        logger.info("[RSTM] Initial loading begins:");
 
         JSONObject layerSettingsJSON;
         JSONObject RSTMSettingsJSON;
@@ -105,6 +107,7 @@ public class RSTMModPlugin extends BaseModPlugin {
             logger.warn("[RSTM] Some music tracks did not load properly and were discarded! See warnings tagged " +
                     "with [RSTM] above for more details.");
         }
+        logger.info("<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>");
     }
 
     public static boolean getDebugModeStatus() {
