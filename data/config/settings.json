@@ -1,5 +1,6 @@
 {
     "plugins": {
-        "RSTM_TestPlugin": "data.scripts.RSTM.RSTM_TestPlugin",
+        "RSTM_MusicPlayer": "data.scripts.plugins.RSTM_MusicPlayer",
+        "RSTM_DebugMode": "data.scripts.plugins.RSTM_DebugMode",
 	}
 }

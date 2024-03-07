@@ -2,8 +2,8 @@
     # debugMode: Set to true to enable, false to disable
     # Provides some hotkeys for some special debugging actions (these are case sensitive, so don't press shift while trying to use them)
     # p: Toggle jukebox on or off
-    # k: Display current jukebox settings
-    # o/m: Increase/decrease jukebox intensity level
+    # k: Toggle display current jukebox settings
+    # o/m: Increase/decrease jukebox threat level
     # j/l: Change jukebox track
     # n: Toggle displaying threat information on-screen on or off
     "debugMode": true,

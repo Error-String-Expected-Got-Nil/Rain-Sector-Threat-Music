@@ -58,7 +58,7 @@ public class RSTM_LayeredMusicTrack {
 
                 if (threatPoint < 0) {
                     invalid = true;
-                    logger.warn("[RSTM] failed to load threat curve points into track " + trackID +
+                    logger.warn("[RSTM] Failed to load threat curve points into track " + trackID +
                             ", point at index " + index + " was less than 0. All threat curve points must " +
                             "be greater than or equal to 0.");
                     return;
@@ -95,6 +95,12 @@ public class RSTM_LayeredMusicTrack {
         }
 
         logger.info("[RSTM] Successfully loaded track " + trackID + " with " + layers.size() + " music layers.");
+    }
+
+    public void pulse(float deltaTime) {
+        for (RSTM_MusicLayer layer : layers) {
+            layer.pulse(deltaTime);
+        }
     }
 
     public void setThreatLevelByThreatCurve(float threat) {
@@ -137,8 +143,6 @@ public class RSTM_LayeredMusicTrack {
     public void setThreatLevel(int threatLevel) {
         this.threatLevel = threatLevel;
 
-        if (threatLevel == -1) return;
-
         for (int index = 0; index < layers.size(); index++) {
             RSTM_MusicLayer layer = layers.get(index);
 
@@ -160,5 +164,9 @@ public class RSTM_LayeredMusicTrack {
         for (RSTM_MusicLayer layer : layers) {
             layer.unmute();
         }
+    }
+
+    public int getLayerCount() {
+        return layers.size();
     }
 }
