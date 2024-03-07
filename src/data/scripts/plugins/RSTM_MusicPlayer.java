@@ -1,5 +1,6 @@
 package data.scripts.plugins;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
@@ -24,7 +25,8 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
     public void init(CombatEngineAPI engine) {
         if (RSTM_Utils.isInCombat()) {
             disabled = false;
-            currentTrack = selectTrack();
+            switchTrack(selectTrack());
+            currentMusicPlayer = this;
         }
     }
 
@@ -34,9 +36,14 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
 
         // RSTM_Utils.isCombatEnding() also triggers on battle start for reasons so we just wait 0.25 seconds before
         // the battle can be considered "ended." Probably won't cause issues in most practical circumstances.
-        if (stopwatch < 0.25f) stopwatch += amount;
+        if (stopwatch < 0.45f) stopwatch += amount;
 
-        if (RSTM_Utils.isCombatEnding() && stopwatch > 0.25f) {
+        // TODO: Tracks not stopping when combat ends
+        //  Theory: tracklist and musicTracks do not contain the same track objects? Need to investigate
+
+        if (RSTM_Utils.isCombatEnding() && stopwatch > 0.40f) {
+            Global.getLogger(this.getClass()).info("[RSTM] Music player plugin thinks combat is ending");
+
             disabled = true;
             if (currentTrack != null) currentTrack.stop();
             currentTrack = null;
@@ -63,6 +70,10 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
 
     public void setOverrideThreatLevel(int threatLevel) {
         overrideThreatLevel = threatLevel;
+
+        if (overrideMode && currentTrack != null) {
+            currentTrack.setThreatLevel(overrideThreatLevel);
+        }
     }
 
     public int getOverrideThreatLevel() {
@@ -70,10 +81,12 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
     }
 
     public void switchTrack(RSTM_LayeredMusicTrack track) {
-        currentTrack.forceStop();
+        if (currentTrack != null) currentTrack.forceStop();
         currentTrack = track;
 
         if (currentTrack == null) return;
+
+        currentTrack.initialize();
 
         if (overrideMode) {
             currentTrack.setThreatLevel(overrideThreatLevel);

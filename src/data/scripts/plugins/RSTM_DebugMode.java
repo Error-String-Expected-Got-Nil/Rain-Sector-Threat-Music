@@ -1,6 +1,7 @@
 package data.scripts.plugins;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.SoundPlayerAPI;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
@@ -23,8 +24,9 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
     private static int maximumThreatLevel = -1;
 
     private boolean disabled = true;
+    private float stopwatch = 0f;
 
-    private boolean jukeboxOn = true;
+    private boolean jukeboxOn = false;
     private boolean statusDisplayOn = true;
     private int trackNumber = -1;
     private int threatLevel = -1;
@@ -37,7 +39,8 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
 
         maximumTrack = RSTMModPlugin.tracklist.size() - 1;
         maximumThreatLevel = -1;
-        for (RSTM_LayeredMusicTrack track : RSTMModPlugin.tracklist) {
+        for (String trackID : RSTMModPlugin.tracklist) {
+            RSTM_LayeredMusicTrack track = RSTMModPlugin.musicTracks.get(trackID);
             int trackMaxThreat = track.getLayerCount() - 1;
             if (trackMaxThreat > maximumThreatLevel) maximumThreatLevel = trackMaxThreat;
         }
@@ -46,6 +49,25 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
         if (disabled) return;
+        RSTM_MusicPlayer player = RSTM_MusicPlayer.getCurrentMusicPlayer();
+
+        if (stopwatch < 0.45f) stopwatch += amount;
+
+        if (RSTM_Utils.isCombatEnding() && stopwatch > 0.40f) {
+            Global.getLogger(this.getClass()).info("[RSTM] Debug mode plugin thinks combat is ending");
+
+            disabled = true;
+            jukeboxOn = false;
+            statusDisplayOn = true;
+            trackNumber = -1;
+            threatLevel = -1;
+
+            if (player == null) return;
+            player.switchTrack(null);
+            player.exitOverrideMode();
+        }
+
+        if (player == null) return;
 
         CombatEngineAPI engine = Global.getCombatEngine();
 
@@ -66,11 +88,95 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
 
     @Override
     public void processInputPreCoreControls(float amount, List<InputEventAPI> events) {
+        RSTM_MusicPlayer player = RSTM_MusicPlayer.getCurrentMusicPlayer();
+        if (player == null) return;
+
+        SoundPlayerAPI soundPlayer = Global.getSoundPlayer();
+
         for (InputEventAPI input : events) {
             if (input.isConsumed() || !input.isKeyDownEvent()) continue;
 
             switch (input.getEventChar()) {
-                // TODO: Handle jukebox debug controls and such
+                case jukeboxToggleKey:
+                    if (jukeboxOn) {
+                        jukeboxOn = false;
+                        soundPlayer.playUISound("ui_right_click_command_given", 1f, 1f);
+                        player.exitOverrideMode();
+                    } else {
+                        jukeboxOn = true;
+                        soundPlayer.playUISound("ui_right_click_command_given", 1f, 1f);
+                        player.enterOverrideMode();
+
+                        player.setOverrideThreatLevel(threatLevel);
+
+                        if (trackNumber == -1) {
+                            player.switchTrack(null);
+                        } else {
+                            player.switchTrack(RSTMModPlugin.musicTracks.get(RSTMModPlugin.tracklist.get(trackNumber)));
+                        }
+                    }
+                    break;
+
+                case jukeboxDisplayKey:
+                    statusDisplayOn = !statusDisplayOn;
+                    soundPlayer.playUISound("ui_right_click_command_given", 1f, 1f);
+                    break;
+
+                case jukeboxThreatLevelIncKey:
+                    if (threatLevel < maximumThreatLevel) {
+                        soundPlayer.playUISound("ui_right_click_command_given", 1f, 1f);
+                        threatLevel++;
+                        player.setOverrideThreatLevel(threatLevel);
+                    } else {
+                        soundPlayer.playUISound("ui_out_of_command_points", 1f, 1f);
+                    }
+                    break;
+
+                case jukeboxThreatLevelDecKey:
+                    if (threatLevel > minimumThreatLevel) {
+                        soundPlayer.playUISound("ui_right_click_command_given", 1f, 1f);
+                        threatLevel--;
+                        player.setOverrideThreatLevel(threatLevel);
+                    } else {
+                        soundPlayer.playUISound("ui_out_of_command_points", 1f, 1f);
+                    }
+                    break;
+
+                case jukeboxTrackIncKey:
+                    if (trackNumber < maximumTrack) {
+                        soundPlayer.playUISound("ui_create_waypoint", 1f, 1f);
+                        trackNumber++;
+
+                        RSTM_LayeredMusicTrack nextTrack;
+                        if (trackNumber == -1) {
+                            nextTrack = null;
+                        } else {
+                            nextTrack = RSTMModPlugin.musicTracks.get(RSTMModPlugin.tracklist.get(trackNumber));
+                        }
+
+                        if (jukeboxOn) player.switchTrack(nextTrack);
+                    } else {
+                        soundPlayer.playUISound("ui_selection_cleared", 1f, 1f);
+                    }
+                    break;
+
+                case jukeboxTrackDecKey:
+                    if (trackNumber > minimumTrack) {
+                        soundPlayer.playUISound("ui_create_waypoint", 1f, 1f);
+                        trackNumber--;
+
+                        RSTM_LayeredMusicTrack nextTrack;
+                        if (trackNumber == -1) {
+                            nextTrack = null;
+                        } else {
+                            nextTrack = RSTMModPlugin.musicTracks.get(RSTMModPlugin.tracklist.get(trackNumber));
+                        }
+
+                        if (jukeboxOn) player.switchTrack(nextTrack);
+                    } else {
+                        soundPlayer.playUISound("ui_selection_cleared", 1f, 1f);
+                    }
+                    break;
             }
         }
     }
@@ -81,8 +187,8 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
     }
 
     private String getCurrentTrackName() {
-        if (trackNumber == -1) return "<none>";
-        return RSTMModPlugin.tracklist.get(trackNumber).getTrackID();
+        if (trackNumber == -1) return "none";
+        return RSTMModPlugin.tracklist.get(trackNumber);
     }
 
     private String getThreatLevelString() {

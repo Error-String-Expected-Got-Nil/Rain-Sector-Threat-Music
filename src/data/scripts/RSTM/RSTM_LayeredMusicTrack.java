@@ -117,6 +117,17 @@ public class RSTM_LayeredMusicTrack {
         setThreatLevel(threatSum);
     }
 
+    public void initialize() {
+        start();
+        mute();
+    }
+
+    public void start() {
+        for (RSTM_MusicLayer layer : layers) {
+            layer.unmute();
+        }
+    }
+
     public void stop() {
         setThreatLevel(-1);
     }
@@ -147,22 +158,22 @@ public class RSTM_LayeredMusicTrack {
             RSTM_MusicLayer layer = layers.get(index);
 
             if (index <= threatLevel) {
-                layer.start();
+                layer.hardUnmute();
             } else {
-                layer.stop();
+                layer.hardMute();
             }
         }
     }
 
     public void mute() {
         for (RSTM_MusicLayer layer : layers) {
-            layer.mute();
+            layer.hardMute();
         }
     }
 
     public void unmute() {
         for (RSTM_MusicLayer layer : layers) {
-            layer.unmute();
+            layer.hardUnmute();
         }
     }
 

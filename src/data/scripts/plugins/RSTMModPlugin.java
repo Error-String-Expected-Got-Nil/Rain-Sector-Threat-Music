@@ -24,7 +24,7 @@ public class RSTMModPlugin extends BaseModPlugin {
 
     public static final Map<String, RSTM_MusicLayer> musicLayers = new HashMap<>();
     public static final Map<String, RSTM_LayeredMusicTrack> musicTracks = new HashMap<>();
-    public static final List<RSTM_LayeredMusicTrack> tracklist = new ArrayList<>();
+    public static final List<String> tracklist = new ArrayList<>();
     private static boolean hadInvalidTrack = false;
 
     @Override
@@ -94,7 +94,7 @@ public class RSTMModPlugin extends BaseModPlugin {
                     }
 
                     musicTracks.put(trackID, track);
-                    tracklist.add(track);
+                    tracklist.add(trackID);
                 }
             }
         } catch (JSONException e) {

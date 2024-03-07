@@ -81,7 +81,7 @@ public class RSTM_MusicLayer {
         state = STOPPED;
     }
 
-    public void start() {
+    public void unmute() {
         if (state == FADE_IN || state == PLAYING) return;
 
         if (state == FADE_OUT) {
@@ -95,7 +95,7 @@ public class RSTM_MusicLayer {
         state = FADE_IN;
     }
 
-    public void stop() {
+    public void mute() {
         if (state == FADE_OUT || state == STOPPED) return;
 
         if (state == FADE_IN) {
@@ -111,7 +111,7 @@ public class RSTM_MusicLayer {
     public void pulse(float deltaTime) {
         float maxVolume = getMaxVolume();
 
-        if (state != STOPPED && !sound.isPlaying()) {
+        if (state != STOPPED && (sound == null || !sound.isPlaying())) {
             discardCurrentSound();
             sound = Global.getSoundPlayer().playUISound(soundID, 1f, currentVolume);
         }
@@ -140,7 +140,7 @@ public class RSTM_MusicLayer {
                     discardCurrentSound();
                     currentVolume = 0f;
                     stopwatch = 0f;
-                    state = STOPPED;
+
                     return;
                 }
 
@@ -154,11 +154,11 @@ public class RSTM_MusicLayer {
         return layerID;
     }
 
-    public void mute() {
+    public void hardMute() {
         muted = true;
     }
 
-    public void unmute() {
+    public void hardUnmute() {
         muted = false;
     }
 
