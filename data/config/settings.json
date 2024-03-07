@@ -1,5 +1,5 @@
 {
     "plugins": {
-		"RSTM_debugTestingKeys":"data.scripts.plugins.RSTM_debugTestingKeys"
+        "RSTM_TestPlugin": "data.scripts.RSTM.RSTM_TestPlugin",
 	}
 }
