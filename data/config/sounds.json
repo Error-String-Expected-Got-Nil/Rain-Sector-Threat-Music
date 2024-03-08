@@ -83,4 +83,46 @@
     "RSTM_LM_weird": [
         {"file": "sounds/RSTM/layered/LM/weird.ogg", "pitch": 1, "volume": 1}
     ],
+
+    #############
+    #           #
+    # Pipe Yard #
+    #           #
+    #############
+
+    "RSTM_VS_arps": [
+        {"file": "sounds/RSTM/layered/VS/arps.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_VS_bass": [
+        {"file": "sounds/RSTM/layered/VS/bass.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_VS_kick": [
+        {"file": "sounds/RSTM/layered/VS/kick.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_VS_noise": [
+        {"file": "sounds/RSTM/layered/VS/noise.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_VS_perc1": [
+        {"file": "sounds/RSTM/layered/VS/perc1.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_VS_perc2": [
+        {"file": "sounds/RSTM/layered/VS/perc2.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_VS_shaker": [
+        {"file": "sounds/RSTM/layered/VS/shaker.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_VS_synth": [
+        {"file": "sounds/RSTM/layered/VS/synth.ogg", "pitch": 1, "volume": 1}
+    ],
+
+    "RSTM_VS_weird": [
+        {"file": "sounds/RSTM/layered/VS/weird.ogg", "pitch": 1, "volume": 1}
+    ],
 }

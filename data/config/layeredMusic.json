@@ -7,45 +7,55 @@
     },
 
     "layers": [
-        # Making these "layer" entries instead of just giving the sound IDs to the tracks in case I want to give layers individual settings.
-        # for things like fade in and fade out time. Might not end up doing that but it can't really hurt.
-
         # Note for those who want to add to this: All sounds in the same track must have the same length for things to sync properly!
         # Behind the scenes, when a track is loaded, all sounds are turned on, but are muted, and unmuted when they are "activated."
         # This allows them to sync up. If they have different lengths, however, they will desync over time.
-        {"id": "SI_1", "sound": "RSTM_SI_kick"},
-        {"id": "SI_2", "sound": "RSTM_SI_shaker"},
-        {"id": "SI_3", "sound": "RSTM_SI_weird"},
-        {"id": "SI_4", "sound": "RSTM_SI_perc1"},
-        {"id": "SI_5", "sound": "RSTM_SI_bass"},
-        {"id": "SI_6", "sound": "RSTM_SI_arps"},
-        {"id": "SI_7", "sound": "RSTM_SI_snare"},
-        {"id": "SI_8", "sound": "RSTM_SI_noise"},
+        {"id": "SI_0", "sound": "RSTM_SI_kick"},
+        {"id": "SI_1", "sound": "RSTM_SI_shaker"},
+        {"id": "SI_2", "sound": "RSTM_SI_weird"},
+        {"id": "SI_3", "sound": "RSTM_SI_perc1"},
+        {"id": "SI_4", "sound": "RSTM_SI_bass"},
+        {"id": "SI_5", "sound": "RSTM_SI_arps"},
+        {"id": "SI_6", "sound": "RSTM_SI_snare"},
+        {"id": "SI_7", "sound": "RSTM_SI_noise"},
 
-        {"id": "LM_1", "sound": "RSTM_LM_kick"},
-        {"id": "LM_2", "sound": "RSTM_LM_perc2"},
-        {"id": "LM_3", "sound": "RSTM_LM_snare"},
-        {"id": "LM_4", "sound": "RSTM_LM_perc1"},
-        {"id": "LM_5", "sound": "RSTM_LM_bass"},
-        {"id": "LM_6", "sound": "RSTM_LM_pad"},
-        {"id": "LM_7", "sound": "RSTM_LM_arps"},
-        {"id": "LM_8", "sound": "RSTM_LM_weird"},
-        {"id": "LM_9", "sound": "RSTM_LM_noise"},
+        {"id": "LM_0", "sound": "RSTM_LM_kick"},
+        {"id": "LM_1", "sound": "RSTM_LM_perc2"},
+        {"id": "LM_2", "sound": "RSTM_LM_snare"},
+        {"id": "LM_3", "sound": "RSTM_LM_perc1"},
+        {"id": "LM_4", "sound": "RSTM_LM_bass"},
+        {"id": "LM_5", "sound": "RSTM_LM_pad"},
+        {"id": "LM_6", "sound": "RSTM_LM_arps"},
+        {"id": "LM_7", "sound": "RSTM_LM_weird"},
+        {"id": "LM_8", "sound": "RSTM_LM_noise"},
+
+        {"id": "VS_0", "sound": "RSTM_VS_perc2"},
+        {"id": "VS_1", "sound": "RSTM_VS_kick"},
+        {"id": "VS_2", "sound": "RSTM_VS_shaker"},
+        {"id": "VS_3", "sound": "RSTM_VS_perc1"},
+        {"id": "VS_4", "sound": "RSTM_VS_bass"},
+        {"id": "VS_5", "sound": "RSTM_VS_noise"},
+        {"id": "VS_6", "sound": "RSTM_VS_arps"},
+        {"id": "VS_7", "sound": "RSTM_VS_synth"},
+        {"id": "VS_8", "sound": "RSTM_VS_weird"},
     ],
 
     "tracks": [
-        # Simple threat track setup, layers simply turn on when a certain threat level is reached, and off when it goes away.
-        # Could do something more complex but this is good enough, at least for now.
         {
             "id": "sky_islands",
-            "layers":      ["SI_1", "SI_2", "SI_3", "SI_4", "SI_5", "SI_6", "SI_7", "SI_8"],
+            "layers":      ["SI_0", "SI_1", "SI_2", "SI_3", "SI_4", "SI_5", "SI_6", "SI_7"],
             "threatCurve": [   100,    200,    300,    400,    500,    600,    700,    800],
-            # This threat curve is a placeholder and subject to change when I actually make the threat level measuring system.
         },
 
         {
             "id": "waterfront_complex",
-            "layers":      ["LM_1", "LM_2", "LM_3", "LM_4", "LM_5", "LM_6", "LM_7", "LM_8", "LM_9"],
+            "layers":      ["LM_0", "LM_1", "LM_2", "LM_3", "LM_4", "LM_5", "LM_6", "LM_7", "LM_8"],
+            "threatCurve": [   100,    200,    300,    400,    500,    600,    700,    800,    900],
+        },
+
+        {
+            "id": "pipe_yard",
+            "layers":      ["VS_0", "VS_1", "VS_2", "VS_3", "VS_4", "VS_5", "VS_6", "VS_7", "VS_8"],
             "threatCurve": [   100,    200,    300,    400,    500,    600,    700,    800,    900],
         },
     ],
