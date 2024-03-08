@@ -9,6 +9,10 @@
     "layers": [
         # Making these "layer" entries instead of just giving the sound IDs to the tracks in case I want to give layers individual settings.
         # for things like fade in and fade out time. Might not end up doing that but it can't really hurt.
+
+        # Note for those who want to add to this: All sounds in the same track must have the same length for things to sync properly!
+        # Behind the scenes, when a track is loaded, all sounds are turned on, but are muted, and unmuted when they are "activated."
+        # This allows them to sync up. If they have different lengths, however, they will desync over time.
         {"id": "SI_1", "sound": "RSTM_SI_kick"},
         {"id": "SI_2", "sound": "RSTM_SI_shaker"},
         {"id": "SI_3", "sound": "RSTM_SI_weird"},

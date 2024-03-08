@@ -10,10 +10,4 @@
 
     # Global volume control
     "globalVolumeModifier": 1,
-
-    # If true, active music layers will be restarted when the threat level changes in order to sync them up better. 
-    # Might cause a notable break in the music when it happens.
-    "restartLayersOnThreatLevelChange": true,
-    # Modifier for the above; When restarting, layers fade out and back in again instead of sharply stopping and starting instantly.
-    "softRestart": false,
 }

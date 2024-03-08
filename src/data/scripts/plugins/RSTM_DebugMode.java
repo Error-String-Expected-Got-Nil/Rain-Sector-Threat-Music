@@ -51,6 +51,7 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
         if (disabled) return;
         RSTM_MusicPlayer player = RSTM_MusicPlayer.getCurrentMusicPlayer();
 
+        /*
         if (stopwatch < 0.45f) stopwatch += amount;
 
         if (RSTM_Utils.isCombatEnding() && stopwatch > 0.40f) {
@@ -66,6 +67,7 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
             player.switchTrack(null);
             player.exitOverrideMode();
         }
+        */
 
         if (player == null) return;
 

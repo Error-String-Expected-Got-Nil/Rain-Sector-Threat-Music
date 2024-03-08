@@ -6,6 +6,7 @@ import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import data.scripts.RSTM.RSTM_LayeredMusicTrack;
 import data.scripts.RSTM.RSTM_Utils;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -24,9 +25,10 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
     @Override
     public void init(CombatEngineAPI engine) {
         if (RSTM_Utils.isInCombat()) {
-            disabled = false;
             switchTrack(selectTrack());
             currentMusicPlayer = this;
+            disabled = false;
+            Global.getSoundPlayer().setSuspendDefaultMusicPlayback(true);
         }
     }
 
@@ -38,16 +40,15 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
         // the battle can be considered "ended." Probably won't cause issues in most practical circumstances.
         if (stopwatch < 0.45f) stopwatch += amount;
 
-        // TODO: Tracks not stopping when combat ends
-        //  Theory: tracklist and musicTracks do not contain the same track objects? Need to investigate
-
         if (RSTM_Utils.isCombatEnding() && stopwatch > 0.40f) {
-            Global.getLogger(this.getClass()).info("[RSTM] Music player plugin thinks combat is ending");
+            Logger logger = Global.getLogger(this.getClass());
+            logger.info("[RSTM] Music player plugin thinks combat is ending");
 
             disabled = true;
-            if (currentTrack != null) currentTrack.stop();
+            if (currentTrack != null) currentTrack.deactivate();
             currentTrack = null;
             currentMusicPlayer = null;
+            Global.getSoundPlayer().setSuspendDefaultMusicPlayback(false);
             return;
         }
 
@@ -81,12 +82,12 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
     }
 
     public void switchTrack(RSTM_LayeredMusicTrack track) {
-        if (currentTrack != null) currentTrack.forceStop();
+        if (currentTrack != null) currentTrack.deactivate();
         currentTrack = track;
 
         if (currentTrack == null) return;
 
-        currentTrack.initialize();
+        currentTrack.activate();
 
         if (overrideMode) {
             currentTrack.setThreatLevel(overrideThreatLevel);

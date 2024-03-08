@@ -12,13 +12,11 @@ import static data.scripts.RSTM.RSTM_MusicLayer.RSTM_LayerState.*;
 
 public class RSTM_MusicLayer {
     enum RSTM_LayerState {
-        STOPPED,
+        INACTIVE,
         FADE_IN,
-        PLAYING,
-        FADE_OUT
+        FADE_OUT,
+        IDLE
     }
-
-    private final Logger logger;
 
     private final String layerID;
     private final String soundID;
@@ -26,14 +24,14 @@ public class RSTM_MusicLayer {
     private final float fadeOutTime;
     private final float volumeModifier;
 
-    private RSTM_LayerState state = STOPPED;
+    private RSTM_LayerState state = INACTIVE;
     private float stopwatch = 0f;
     private float currentVolume = 0f;
     private SoundAPI sound = null;
     private boolean muted = false;
 
     public RSTM_MusicLayer(JSONObject settings, JSONObject defaultSettings) {
-        logger = Global.getLogger(this.getClass());
+        Logger logger = Global.getLogger(this.getClass());
 
         try {
             layerID = settings.getString("id");
@@ -70,84 +68,82 @@ public class RSTM_MusicLayer {
         logger.info("[RSTM] Successfully loaded music layer " + layerID + " with sound " + soundID);
     }
 
-    public void hardStart() {
-        discardCurrentSound();
-        sound = Global.getSoundPlayer().playUISound(soundID, 1f, getMaxVolume());
-        state = PLAYING;
-    }
+    public void pulse(float deltaTime) {
+        if (state != INACTIVE) {
 
-    public void hardStop() {
-        discardCurrentSound();
-        state = STOPPED;
-    }
+            // TODO: Duplicating sounds bug
+            //  Possibly caused by isPlaying() returning "false" when the sound is drowned out by other sounds
+            //  but is still active. Maybe require a song length defined in the JSON and manually reset?
+            //  Suggested fix from LazyWizard: Use playUILoop instead, which needs to be called every frame
 
-    public void unmute() {
-        if (state == FADE_IN || state == PLAYING) return;
-
-        if (state == FADE_OUT) {
-            stopwatch = fadeInTime * (1f - stopwatch / fadeOutTime);
-            state = FADE_IN;
-            return;
+            if (sound == null || !sound.isPlaying()) {
+                discardCurrentSound();
+                // Let this comment be a memorial: I once forgot to add "sound = " to the front of this, and
+                // it took a couple hours for me to figure out why it was null sometimes.
+                // Memorial 2: Apparently SoundAPI.isPlaying() returns false if the sound is still active, but
+                // being overridden by another playing sound. Thanks Alex.
+                sound = Global.getSoundPlayer().playUISound(soundID, 1f, 1f);
+            }
         }
 
-        sound = Global.getSoundPlayer().playUISound(soundID, 1f, 0f);
+        switch(state) {
+            case INACTIVE:
+                return;
+            case FADE_IN:
+                stopwatch += deltaTime;
+                currentVolume = getMaxVolume() * Math.min(stopwatch / fadeInTime, 1f);
+
+                if (stopwatch > fadeInTime) {
+                    state = IDLE;
+                    stopwatch = 0f;
+                }
+
+                break;
+            case FADE_OUT:
+                stopwatch += deltaTime;
+                currentVolume = getMaxVolume() * (1f - Math.min(stopwatch / fadeOutTime, 1f));
+
+                if (stopwatch > fadeOutTime) {
+                    state = IDLE;
+                    stopwatch = 0f;
+                    muted = true;
+                }
+
+                break;
+            case IDLE:
+                currentVolume = getMaxVolume();
+        }
+
+        if (sound == null) return;
+
+        sound.setVolume(currentVolume);
+    }
+
+    public void activate() {
+        muted = true;
+        sound = Global.getSoundPlayer().playUISound(soundID, 1f, 1f);
+        state = IDLE;
+    }
+
+    public void deactivate() {
+        discardCurrentSound();
         stopwatch = 0f;
-        state = FADE_IN;
+        state = INACTIVE;
+        muted = false;
+        currentVolume = 0f;
     }
 
     public void mute() {
-        if (state == FADE_OUT || state == STOPPED) return;
-
-        if (state == FADE_IN) {
-            stopwatch = fadeOutTime * (1f - stopwatch / fadeInTime);
-            state = FADE_OUT;
-            return;
-        }
-
         stopwatch = 0f;
         state = FADE_OUT;
     }
 
-    public void pulse(float deltaTime) {
-        float maxVolume = getMaxVolume();
-
-        if (state != STOPPED && (sound == null || !sound.isPlaying())) {
-            discardCurrentSound();
-            sound = Global.getSoundPlayer().playUISound(soundID, 1f, currentVolume);
+    public void unmute() {
+        if (muted) {
+            muted = false;
+            stopwatch = 0f;
+            state = FADE_IN;
         }
-
-        switch (state) {
-            case STOPPED:
-                return;
-            case FADE_IN:
-                stopwatch += deltaTime;
-                currentVolume = maxVolume * stopwatch / fadeInTime;
-
-                if (stopwatch > fadeInTime) {
-                    stopwatch = 0f;
-                    state = PLAYING;
-                }
-
-                break;
-            case PLAYING:
-                currentVolume = maxVolume;
-                break;
-            case FADE_OUT:
-                stopwatch += deltaTime;
-                currentVolume = maxVolume * (1f - stopwatch / fadeOutTime);
-
-                if (stopwatch > fadeOutTime) {
-                    discardCurrentSound();
-                    currentVolume = 0f;
-                    stopwatch = 0f;
-
-                    return;
-                }
-
-                break;
-        }
-
-        sound.setVolume(currentVolume);
     }
 
     public String getLayerID() {
