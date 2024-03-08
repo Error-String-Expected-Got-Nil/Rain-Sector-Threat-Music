@@ -79,7 +79,7 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
         for (InputEventAPI input : events) {
             if (input.isConsumed() || !input.isKeyDownEvent()) continue;
 
-            switch (input.getEventChar()) {
+            switch (Character.toLowerCase(input.getEventChar())) {
                 case jukeboxToggleKey:
                     if (jukeboxOn) {
                         jukeboxOn = false;

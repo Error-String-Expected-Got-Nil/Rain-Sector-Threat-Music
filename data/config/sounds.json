@@ -1,5 +1,9 @@
 {
-    ### Sky Islands ###
+    ###############
+    #             #
+    # Sky Islands #
+    #             #
+    ###############
 
     "RSTM_SI_arps": [
         {"file": "sounds/RSTM/layered/SI/arps.ogg", "pitch": 1, "volume": 1}
@@ -38,7 +42,11 @@
         {"file": "sounds/RSTM/layered/SI/weird.ogg", "pitch": 1, "volume": 1}
     ],
 
-    ### Waterfront Complex ###
+    ######################
+    #                    #
+    # Waterfront Complex #
+    #                    #
+    ######################
 
     "RSTM_LM_arps": [
         {"file": "sounds/RSTM/layered/LM/arps.ogg", "pitch": 1, "volume": 1}
