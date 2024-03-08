@@ -1,16 +1,4 @@
 {
-    ##### Debugging/Testing #####
-
-    "RSTM_debug_HI_SHAKER": [
-        {"file": "sounds/RSTM/testing/hi_shaker.ogg", "pitch": 1, "volume": 1}
-    ],
-
-    "RSTM_debug_HI_PERCUSSION": [
-        {"file": "sounds/RSTM/testing/hi_percussion.ogg", "pitch": 1, "volume": 1}
-    ],
-
-    ##### Actual #####
-
     ### Sky Islands ###
 
     "RSTM_SI_arps": [
