@@ -27,7 +27,6 @@ public class RSTM_MusicLayer {
     private RSTM_LayerState state = INACTIVE;
     private float stopwatch = 0f;
     private float currentVolume = 0f;
-    private SoundAPI sound = null;
     private boolean muted = false;
 
     public RSTM_MusicLayer(JSONObject settings, JSONObject defaultSettings) {
@@ -69,23 +68,6 @@ public class RSTM_MusicLayer {
     }
 
     public void pulse(float deltaTime) {
-        if (state != INACTIVE) {
-
-            // TODO: Duplicating sounds bug
-            //  Possibly caused by isPlaying() returning "false" when the sound is drowned out by other sounds
-            //  but is still active. Maybe require a song length defined in the JSON and manually reset?
-            //  Suggested fix from LazyWizard: Use playUILoop instead, which needs to be called every frame
-
-            if (sound == null || !sound.isPlaying()) {
-                discardCurrentSound();
-                // Let this comment be a memorial: I once forgot to add "sound = " to the front of this, and
-                // it took a couple hours for me to figure out why it was null sometimes.
-                // Memorial 2: Apparently SoundAPI.isPlaying() returns false if the sound is still active, but
-                // being overridden by another playing sound. Thanks Alex.
-                sound = Global.getSoundPlayer().playUISound(soundID, 1f, 1f);
-            }
-        }
-
         switch(state) {
             case INACTIVE:
                 return;
@@ -114,19 +96,17 @@ public class RSTM_MusicLayer {
                 currentVolume = getMaxVolume();
         }
 
-        if (sound == null) return;
-
-        sound.setVolume(currentVolume);
+        // Thank you to LazyWizard for suggesting that I use playUILoop() instead of playUISound(), this fixed
+        // a major bug and made the code neater overall.
+        Global.getSoundPlayer().playUILoop(soundID, 1f, currentVolume);
     }
 
     public void activate() {
         muted = true;
-        sound = Global.getSoundPlayer().playUISound(soundID, 1f, 1f);
         state = IDLE;
     }
 
     public void deactivate() {
-        discardCurrentSound();
         stopwatch = 0f;
         state = INACTIVE;
         muted = false;
@@ -150,24 +130,9 @@ public class RSTM_MusicLayer {
         return layerID;
     }
 
-    public void hardMute() {
-        muted = true;
-    }
-
-    public void hardUnmute() {
-        muted = false;
-    }
-
     private float getMaxVolume() {
         if (muted) return 0f;
 
         return volumeModifier * RSTMModPlugin.getGlobalVolumeModifier();
-    }
-
-    private void discardCurrentSound() {
-        if (sound != null) {
-            sound.stop();
-            sound = null;
-        }
     }
 }

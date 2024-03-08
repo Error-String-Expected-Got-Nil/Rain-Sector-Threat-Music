@@ -24,7 +24,6 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
     private static int maximumThreatLevel = -1;
 
     private boolean disabled = true;
-    private float stopwatch = 0f;
 
     private boolean jukeboxOn = false;
     private boolean statusDisplayOn = true;
@@ -50,24 +49,6 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
     public void advance(float amount, List<InputEventAPI> events) {
         if (disabled) return;
         RSTM_MusicPlayer player = RSTM_MusicPlayer.getCurrentMusicPlayer();
-
-        /*
-        if (stopwatch < 0.45f) stopwatch += amount;
-
-        if (RSTM_Utils.isCombatEnding() && stopwatch > 0.40f) {
-            Global.getLogger(this.getClass()).info("[RSTM] Debug mode plugin thinks combat is ending");
-
-            disabled = true;
-            jukeboxOn = false;
-            statusDisplayOn = true;
-            trackNumber = -1;
-            threatLevel = -1;
-
-            if (player == null) return;
-            player.switchTrack(null);
-            player.exitOverrideMode();
-        }
-        */
 
         if (player == null) return;
 
