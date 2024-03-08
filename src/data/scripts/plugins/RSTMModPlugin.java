@@ -27,6 +27,8 @@ public class RSTMModPlugin extends BaseModPlugin {
     public static final List<String> tracklist = new ArrayList<>();
     private static boolean hadInvalidTrack = false;
 
+    // TODO: 1% chance to replace main menu theme with Kayava easter egg?
+
     @Override
     public void onApplicationLoad() throws Exception {
         Logger logger = Global.getLogger(this.getClass());
