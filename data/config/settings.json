@@ -2,5 +2,6 @@
     "plugins": {
         "RSTM_MusicPlayer": "data.scripts.plugins.RSTM_MusicPlayer",
         "RSTM_DebugMode": "data.scripts.plugins.RSTM_DebugMode",
+        "RSTM_ThreatAssessor": "data.scripts.plugins.RSTM_ThreatAssessor",
 	}
 }

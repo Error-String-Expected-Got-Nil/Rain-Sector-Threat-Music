@@ -4,6 +4,7 @@ import com.fs.starfarer.api.BaseModPlugin;
 import com.fs.starfarer.api.Global;
 import data.scripts.RSTM.RSTM_LayeredMusicTrack;
 import data.scripts.RSTM.RSTM_MusicLayer;
+import data.scripts.RSTM.RSTM_ThreatAssessorSettings;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +28,9 @@ public class RSTMModPlugin extends BaseModPlugin {
     public static final List<String> tracklist = new ArrayList<>();
     private static boolean hadInvalidTrack = false;
 
-    // TODO: 1% chance to replace main menu theme with Kayava easter egg?
+    public static RSTM_ThreatAssessorSettings threatAssessorSettings;
+
+    // TODO: 5% chance to replace main menu theme with Kayava easter egg?
 
     @Override
     public void onApplicationLoad() throws Exception {
@@ -52,6 +55,8 @@ public class RSTMModPlugin extends BaseModPlugin {
         try {
             debugMode = RSTMSettingsJSON.getBoolean("debugMode");
             globalVolumeModifier = (float) RSTMSettingsJSON.getDouble("globalVolumeModifier");
+            threatAssessorSettings = new RSTM_ThreatAssessorSettings(
+                    RSTMSettingsJSON.getJSONObject("threatAssessorSettings"));
         } catch (JSONException e) {
             logger.error("[RSTM] Failed to load RSTM general settings");
             throw new RuntimeException(e);

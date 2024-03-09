@@ -5,9 +5,64 @@
     # k: Toggle display current jukebox settings
     # o/m: Increase/decrease jukebox threat level
     # j/l: Change jukebox track
-    # n: Toggle displaying threat information on-screen on or off
     "debugMode": true,
 
     # Global volume control
     "globalVolumeModifier": 1,
+
+    # Settings for the combat threat rating assessor
+    # All "mod" settings are percentage modifiers in fractional form, i.e. 0.1 = +10% and -0.1 = -10%
+    # Anything that isn't a mod is a flat increase to the threat value
+    # Arrays for hull size are in form [frigate, destroyer, cruiser, capital]
+    "threatAssessorSettings": {
+        # Should static threat ratings for ships be logged?
+        "doLogging": true,
+        # Also print extra information, including the itemized threat assessment for every assessed ship
+        "verboseLogging": true,
+
+        # Direct multiplier to global threat value
+        "globalThreatMultiplier": 1,
+
+        # Settings for the baseline threat rating of any given ship
+        "shipBaseThreatRatingSettings": {
+            "threatPerDP": 1,
+            "threatPerHullSize" : [0, 2, 4, 8],
+
+            "threatModPerDMod": -0.1,
+            "threatModPerSMod": 0.1,
+            "threatModPerOfficerLevel": 0.05,
+            "threatModNoncombat": -0.75,
+        },
+
+        # Threat from overall enemy strength relative to you
+        "ambientThreatSettings": {
+            # Multiplier to overall ambient threat value
+            "ambientThreatGlobalMultiplier": 1,
+
+            # Reduction to threat level for ships in reserve when adding them for ambient threat
+            "reservedMod": -0.9,
+
+            # When determining if a side is outnumbered/outmatched, count each hull size as being worth this much
+            "outmatchHullValue": [1, 1, 2, 4],
+            # The "outmatched" ambient threat modifier scales from outmatchMinMod -> 1 -> outmatchMaxMod 
+            # as the ratio of enemy ships : player ships goes from outmatchMinRatio -> 1 -> outmatchMaxRatio
+            # Does not actually avlidate that mins are < 1 and maxes > 1, so please don't set that.
+            "outmatchMinMod": -0.5,
+            "outmatchMaxMod": 2,
+            "outmatchMinRatio": 0.5,
+            "outmatchMaxRatio": 2,
+            # Multiplier to the outmatch value contribution of ships in reserve
+            "reservesOutmatchMultiplier":0.5,
+        },
+
+        # Threat from nearby enemies and how much they are paying attention to you
+        "localThreatSettings": {
+
+        },
+
+        # Threat from ongoing statuses on your ship, such as flux/hull/armor level and whether you're overloaded or flamed out
+        "situationalThreatSettings": {
+
+        },
+    }
 }
