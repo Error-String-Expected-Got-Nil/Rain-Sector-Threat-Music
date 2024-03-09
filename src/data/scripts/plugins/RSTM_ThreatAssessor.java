@@ -101,7 +101,7 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
         enemyDeployedThreat.setBaseValue(baseEnemyDeployedThreat);
 
 
-        return Math.max(0f, enemyReservesThreat.getModifiedValue() + enemyDeployedThreat.getModifiedValue());
+        return enemyReservesThreat.getModifiedValue() + enemyDeployedThreat.getModifiedValue();
     }
 
     private float getOutmatchModifier() {
