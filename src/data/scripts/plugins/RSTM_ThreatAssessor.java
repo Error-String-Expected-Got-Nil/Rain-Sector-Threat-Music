@@ -88,7 +88,7 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
             }
             enemyReservesThreat.setBaseValue(baseEnemyReservesThreat);
             enemyReservesThreat.modifyPercent("ambientThreatModReserved",
-                    settings.ambientThreatModReserved * 100f);
+                    settings.ambientThreatModReserved);
         }
 
         MutableStat enemyDeployedThreat = new MutableStat(0f);
@@ -166,6 +166,8 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
         return threatRating;
     }
 
+    // TODO: Exclude strike craft from fleet member threat assessment
+
     // Returns the assessed threat rating of the given fleet member.
     // Doesn't apply any extra modifiers, meant to get a baseline threat rating for the start of battle.
     private MutableStat initialAssessFleetMember(FleetMemberAPI ship) {
@@ -204,13 +206,13 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
                 threatModDMod += settings.threatModPerDMod;
             }
         }
-        threat.modifyPercent("threatModDMod", threatModDMod * 100f);
+        threat.modifyPercent("threatModDMod", threatModDMod);
 
         float threatModSMod = 0f;
         for (int i = 0; i < variant.getSMods().size(); i++) {
             threatModSMod += settings.threatModPerSMod;
         }
-        threat.modifyPercent("threatModSMod", threatModSMod * 100f);
+        threat.modifyPercent("threatModSMod", threatModSMod);
 
         PersonAPI captain = ship.getCaptain();
         float threatModOfficerLevel = 0f;
@@ -219,11 +221,11 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
                 threatModOfficerLevel += settings.threatModPerOfficerLevel;
             }
         }
-        threat.modifyPercent("threatModOfficerLevel", threatModOfficerLevel * 100f);
+        threat.modifyPercent("threatModOfficerLevel", threatModOfficerLevel);
 
         float threatModNoncombat = 0f;
         if (variant.isCivilian()) threatModNoncombat = settings.threatModNoncombat;
-        threat.modifyPercent("threatModNoncombat", threatModNoncombat * 100f);
+        threat.modifyPercent("threatModNoncombat", threatModNoncombat);
 
 
         logv("[RSTM]       threatDP: " + threatDP);
