@@ -77,7 +77,6 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
     private float getBaseAmbientThreat() {
         CombatEngineAPI engine = Global.getCombatEngine();
         CombatFleetManagerAPI enemyFleet = engine.getFleetManager(FleetSide.ENEMY);
-        CombatFleetManagerAPI playerFleet = engine.getFleetManager(FleetSide.PLAYER);
 
         MutableStat enemyReservesThreat = new MutableStat(0f);
 
@@ -99,7 +98,6 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
             baseEnemyDeployedThreat += getFleetMemberThreatRating(ship).getModifiedValue();
         }
         enemyDeployedThreat.setBaseValue(baseEnemyDeployedThreat);
-
 
         return enemyReservesThreat.getModifiedValue() + enemyDeployedThreat.getModifiedValue();
     }

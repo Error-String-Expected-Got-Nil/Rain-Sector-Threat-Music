@@ -1,13 +1,7 @@
 {
-    # debugMode: Set to true to enable, false to disable
-    # Provides some hotkeys for some special debugging actions (these are case sensitive, so don't press shift while trying to use them)
-    # p: Toggle jukebox on or off
-    # k: Toggle display current jukebox settings
-    # o/m: Increase/decrease jukebox threat level
-    # j/l: Change jukebox track
-    "debugMode": true,
-
     # Global volume control
+    # For technical reasons, music played by RSTM is affected by the "Sound" volume slider in the settings and not the "Music" volume slider
+    # You may want to reduce your sound volume and increase this value if threat music is getting drowned out by combat sounds and you don't want it to be
     "globalVolumeModifier": 1,
 
     # Settings for the combat threat rating assessor
@@ -21,6 +15,8 @@
         "verboseLogging": true,
 
         # Direct multiplier to global threat value
+        # Threat is mostly based on enemy DP, especially deployed enemy DP, and threat curves and these settings were made with 400 DP battles in mind
+        # If you use bigger or smaller battles, you may want to change this number accordingly
         "globalThreatMultiplier": 1,
 
         # Settings for the baseline threat rating of any given ship
@@ -52,7 +48,7 @@
             "outmatchMinRatio": 0.5,
             "outmatchMaxRatio": 2,
             # Multiplier to the outmatch value contribution of ships in reserve
-            "reservesOutmatchMultiplier":0.5,
+            "outmatchReserveMultiplier":0.5,
         },
 
         # Threat from nearby enemies and how much they are paying attention to you
@@ -64,5 +60,13 @@
         "situationalThreatSettings": {
 
         },
-    }
+    },
+
+    # debugMode: Set to true to enable, false to disable
+    # Provides some hotkeys for some special debugging actions (these are case sensitive, so don't press shift while trying to use them)
+    # p: Toggle jukebox on or off
+    # k: Toggle display current jukebox settings
+    # o/m: Increase/decrease jukebox threat level
+    # j/l: Change jukebox track
+    "debugMode": true,
 }
