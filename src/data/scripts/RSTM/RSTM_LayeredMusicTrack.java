@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RSTM_LayeredMusicTrack {
-    private final Logger logger;
     private final List<RSTM_MusicLayer> layers = new ArrayList<>();
     private final List<Float> threatCurve = new ArrayList<>();
 
@@ -21,7 +20,7 @@ public class RSTM_LayeredMusicTrack {
     private int threatLevel = -1;
 
     public RSTM_LayeredMusicTrack(JSONObject settings) {
-        logger = Global.getLogger(this.getClass());
+        Logger logger = Global.getLogger(this.getClass());
 
         try {
             trackID = settings.getString("id");

@@ -6,7 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 // This class is just a container for all the threat assessor's settings because I didn't want to clutter the mod
-// plugin with two dozen fields.
+// plugin with almost four dozen fields.
 public class RSTM_ThreatAssessorSettings {
     public final boolean doLogging;
     public final boolean verboseLogging;
@@ -35,6 +35,28 @@ public class RSTM_ThreatAssessorSettings {
     public final float outmatchMaxRatio;
     public final float outmatchReserveMultiplier;
 
+    public final float situationalThreatGlobalMultiplier;
+    public final float situationalThreatOverload;
+    public final float situationalThreatFlamedOut;
+    public final float situationalThreatAtMaxHardFlux;
+    public final float situationalThreatAtMaxSoftFlux;
+    public final float situationalThreatAtMinHull;
+
+    public final float localThreatGlobalMultiplier;
+    public final float localThreatFrigateMaxRange;
+    public final float localThreatDestroyerMaxRange;
+    public final float localThreatCruiserMaxRange;
+    public final float localThreatCapitalMaxRange;
+    public final float localThreatFrigateMinRange;
+    public final float localThreatDestroyerMinRange;
+    public final float localThreatCruiserMinRange;
+    public final float localThreatCapitalMinRange;
+    public final float localThreatFighterRange;
+    public final float localThreatFighterThreatPerOP;
+    public final float localThreatOverloadMod;
+    public final float localThreatFlamedOutMod;
+    public final float localThreatVentingMod;
+
     public RSTM_ThreatAssessorSettings(JSONObject settings) {
         try {
             doLogging = settings.getBoolean("doLogging");
@@ -56,7 +78,7 @@ public class RSTM_ThreatAssessorSettings {
 
             JSONObject ambient = settings.getJSONObject("ambientThreatSettings");
 
-            ambientThreatGlobalMultiplier = (float) ambient.getDouble("ambientThreatGlobalMultiplier");
+            ambientThreatGlobalMultiplier = (float) ambient.getDouble("globalMultiplier");
             ambientThreatModReserved = (float) ambient.getDouble("reservedMod");
 
             JSONArray outmatchHullValue = ambient.getJSONArray("outmatchHullValue");
@@ -71,6 +93,34 @@ public class RSTM_ThreatAssessorSettings {
             outmatchMaxRatio = (float) ambient.getDouble("outmatchMaxRatio");
 
             outmatchReserveMultiplier = (float) ambient.getDouble("outmatchReserveMultiplier");
+
+            JSONObject situational = settings.getJSONObject("situationalThreatSettings");
+
+            situationalThreatGlobalMultiplier = (float) situational.getDouble("globalMultiplier");
+            situationalThreatOverload = (float) situational.getDouble("overload");
+            situationalThreatFlamedOut = (float) situational.getDouble("flamedOut");
+            situationalThreatAtMaxHardFlux = (float) situational.getDouble("atMaxHardFlux");
+            situationalThreatAtMaxSoftFlux = (float) situational.getDouble("atMaxSoftFlux");
+            situationalThreatAtMinHull = (float) situational.getDouble("atMinHull");
+
+            JSONObject local = settings.getJSONObject("localThreatSettings");
+
+            localThreatGlobalMultiplier = (float) local.getDouble("globalMultiplier");
+            JSONArray maxLocalThreatRange = local.getJSONArray("maxRange");
+            localThreatFrigateMaxRange = (float) maxLocalThreatRange.getDouble(0);
+            localThreatDestroyerMaxRange = (float) maxLocalThreatRange.getDouble(1);
+            localThreatCruiserMaxRange = (float) maxLocalThreatRange.getDouble(2);
+            localThreatCapitalMaxRange = (float) maxLocalThreatRange.getDouble(3);
+            JSONArray minLocalThreatRange = local.getJSONArray("minRange");
+            localThreatFrigateMinRange = (float) minLocalThreatRange.getDouble(0);
+            localThreatDestroyerMinRange = (float) minLocalThreatRange.getDouble(1);
+            localThreatCruiserMinRange = (float) minLocalThreatRange.getDouble(2);
+            localThreatCapitalMinRange = (float) minLocalThreatRange.getDouble(3);
+            localThreatFighterRange = (float) local.getDouble("fighterThreatRange");
+            localThreatFighterThreatPerOP = (float) local.getDouble("fighterThreatPerOP");
+            localThreatOverloadMod = (float) local.getDouble("overloadMod");
+            localThreatFlamedOutMod = (float) local.getDouble("flamedOutMod");
+            localThreatVentingMod = (float) local.getDouble("ventingMod");
         } catch (JSONException e) {
             Global.getLogger(this.getClass()).error("[RSTM] Failed to load threat assessor settings");
             throw new RuntimeException(e);

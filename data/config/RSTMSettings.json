@@ -34,41 +34,69 @@
         # Threat from overall enemy strength relative to you
         "ambientThreatSettings": {
             # Multiplier to overall ambient threat value
-            "ambientThreatGlobalMultiplier": 1,
+            "globalMultiplier": 1,
 
             # Reduction to threat level for ships in reserve when adding them for ambient threat
             "reservedMod": -90,
 
             # When determining if a side is outnumbered/outmatched, count each hull size as being worth this much
-            "outmatchHullValue": [1, 1, 2, 4],
-            # The "outmatched" ambient threat modifier scales from outmatchMinMod -> 1 -> outmatchMaxMod 
+            "outmatchHullValue": [1, 1.5, 2, 4],
+            # The "outmatched" ambient threat modifier scales from outmatchMinMod -> 0 -> outmatchMaxMod 
             # as the ratio of enemy ships : player ships goes from outmatchMinRatio -> 1 -> outmatchMaxRatio
-            # Does not actually avlidate that mins are < 1 and maxes > 1, so please don't set that
-            # Outmatch mods should be fractions and not percents (i.e. 0.1 = 10%) for technical reasons
-            "outmatchMinMod": -0.5,
-            "outmatchMaxMod": 2,
+            # Does not actually validate the ranges for the values so set them properly unless you want to mess with the math
+            "outmatchMinMod": -50,
+            "outmatchMaxMod": 100,
             "outmatchMinRatio": 0.5,
             "outmatchMaxRatio": 2,
             # Multiplier to the outmatch value contribution of ships in reserve
             "outmatchReserveMultiplier": 0.5,
         },
 
-        # Threat from nearby enemies and how much they are paying attention to you
-        "localThreatSettings": {
-
-        },
-
         # Threat from ongoing statuses on your ship, such as flux/hull/armor level and whether you're overloaded or flamed out
         "situationalThreatSettings": {
+            # Multiplier to overall situational threat value
+            "globalMultiplier": 1,
 
+            # Flat increases to threat when the player's ship has these conditions
+            "overload": 40,
+            "flamedOut": 15,
+
+            # Threat from bars being filled/emptied. Ex.: As hard flux goes from 0% -> 100%, threat from hard flux goes from 0 -> atMaxHardFlux
+            # Flux percent threat isn't counted when overloading or venting
+            "atMaxHardFlux": 30,
+            "atMaxSoftFlux": 15,
+            "atMinHull": 30,
+        },
+
+        # Threat from nearby enemies and how much they are paying attention to you
+        "localThreatSettings": {
+            # Multiplier to overall local threat value
+            "globalMultiplier": 1,
+
+            # Ships add their threat rating again when nearby, with a multiplier for how close they are
+            # Max range is range at which the multiplier becomes 0, min range is range at which it becomes 1
+            # These are for hull sizes since capital ships are still dangerous at a much longer range than frigates and such
+            "maxRange": [1000, 1500, 2000, 3000],
+            "minRange": [500, 700, 850, 1000],
+
+            # Fighters within this range cause threat to the player ship, at this much threat per OP cost of the wing
+            # Threat per individual fighter is wing threat divided by default number of wing members
+            "fighterThreatRange": 600,
+            "fighterThreatPerOP": 0.5,
+
+            "overloadMod": 150,
+            "flamedOutMod": 50,
+            "ventingMod": 25,
         },
     },
 
     # debugMode: Set to true to enable, false to disable
-    # Provides some hotkeys for some special debugging actions (these are case sensitive, so don't press shift while trying to use them)
+    # Provides some hotkeys for some special debugging actions
     # p: Toggle jukebox on or off
     # k: Toggle display current jukebox settings
     # o/m: Increase/decrease jukebox threat level
     # j/l: Change jukebox track
+    # n: Toggle displaying threat rating information
+    # b: Show floating text with threat information for nearest ship to cursor
     "debugMode": true,
 }

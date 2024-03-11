@@ -1,7 +1,6 @@
 package data.scripts.RSTM;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SoundAPI;
 import data.scripts.plugins.RSTMModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;

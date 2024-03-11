@@ -16,17 +16,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// I am expecting this plugin to be substantially lower-quality than the other ones. I might redo all of this at some
-// point, who knows.
-
 public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
     private final Logger logger = Global.getLogger(this.getClass());
     private final RSTM_ThreatAssessorSettings settings = RSTMModPlugin.threatAssessorSettings;
+    public static RSTM_ThreatAssessor currentThreatAssessor = null;
 
     private final Map<String, MutableStat> fleetMemberThreatRatings = new HashMap<>();
+    private final Map<ShipAPI, MutableStat> shipLocalThreatContribution = new HashMap<>();
 
     private boolean disabled = true;
+    private float stopwatch = 0f;
     private float threat = 0f;
+
+    // Public-access fields with the last recorded interal variables in them, so the debug mode plugin is able to
+    // show the values. None of these are actually used in calculations, modifying them won't cause issues.
+    public float lastAmbientThreat = 0f;
+    public float lastOutmatchPercent = 0f;
+    public float lastSituationalThreat = 0f;
+    public float lastLocalThreat = 0f;
 
     @Override
     public void init(CombatEngineAPI engine) {
@@ -52,6 +59,8 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
 
             // NOTE: In a simulation, the player ship isn't spawned initially and also isn't in reserves.
             // Will just have to handle that in advance() I think
+
+            currentThreatAssessor = this;
         }
     }
 
@@ -61,17 +70,37 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
     public void advance(float amount, List<InputEventAPI> events) {
         if (disabled) return;
 
+        // As with the music player, due to how RSTM_Utils.isCombatEnding() works, need to wait a little bit after
+        // the battle starts before trying to stop the plugin to make sure it doesn't happen early.
+        if (stopwatch < 0.45f) stopwatch += amount;
+
+        if (RSTM_Utils.isCombatEnding() && stopwatch > 0.40f) {
+            logger.info("[RSTM] Threat assessor plugin thinks combat is ending");
+
+            disabled = true;
+            currentThreatAssessor = null;
+
+            return;
+        }
+
         RSTM_MusicPlayer musicPlayer = RSTM_MusicPlayer.getCurrentMusicPlayer();
 
         if (musicPlayer == null || musicPlayer.isDisabled()) return;
-
-        CombatEngineAPI engine = Global.getCombatEngine();
 
         MutableStat ambientThreat = new MutableStat(getBaseAmbientThreat());
         ambientThreat.modifyMult("ambientThreatGlobalMultiplier", settings.ambientThreatGlobalMultiplier);
 
         float outmatchModifier = getOutmatchModifier();
-        ambientThreat.modifyPercent("outmatchModifier", outmatchModifier * 100f);
+        ambientThreat.modifyPercent("outmatchModifier", outmatchModifier);
+
+        lastAmbientThreat = ambientThreat.getModifiedValue();
+        lastOutmatchPercent = outmatchModifier;
+
+        MutableStat situationalThreat = new MutableStat(getBaseSituationalThreat());
+        situationalThreat.modifyMult("situationalThreatGlobalMultiplier",
+                settings.situationalThreatGlobalMultiplier);
+
+        lastSituationalThreat = situationalThreat.getModifiedValue();
     }
 
     private float getBaseAmbientThreat() {
@@ -123,11 +152,11 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
                 settings.outmatchMinRatio, settings.outmatchMaxRatio);
 
         if (outmatchRatio < 1 ) {
-            return Misc.interpolate(settings.outmatchMinMod, 1f, (outmatchRatio - settings.outmatchMinRatio)
+            return Misc.interpolate(settings.outmatchMinMod, 0f, (outmatchRatio - settings.outmatchMinRatio)
                     / (1f - settings.outmatchMinRatio));
         }
 
-        return Misc.interpolate(1f, settings.outmatchMaxMod, (outmatchRatio - 1f)
+        return Misc.interpolate(0f, settings.outmatchMaxMod, (outmatchRatio - 1f)
                 / (settings.outmatchMaxRatio - 1f));
     }
 
@@ -150,6 +179,46 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
         }
     }
 
+    private float getBaseSituationalThreat() {
+        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+
+        if (playerShip == null || playerShip.isShuttlePod() || !playerShip.isAlive()) return 0f;
+
+        float baseThreat = 0f;
+
+        if (playerShip.getEngineController().isFlamedOut()) baseThreat += settings.situationalThreatFlamedOut;
+
+        FluxTrackerAPI fluxTracker = playerShip.getFluxTracker();
+
+        if (fluxTracker.isOverloaded()) baseThreat += settings.situationalThreatOverload;
+
+        if (!fluxTracker.isOverloadedOrVenting()) {
+            float maxFlux = fluxTracker.getMaxFlux();
+            float hardFlux = fluxTracker.getHardFlux();
+            float softFlux = fluxTracker.getCurrFlux() - hardFlux;
+
+            baseThreat += hardFlux / maxFlux * settings.situationalThreatAtMaxHardFlux;
+            baseThreat += softFlux / maxFlux * settings.situationalThreatAtMaxSoftFlux;
+        }
+
+        baseThreat += (1f - playerShip.getHullLevel()) * settings.situationalThreatAtMinHull;
+
+        return baseThreat;
+    }
+
+    private float getBaseLocalThreat() {
+        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+
+        if (playerShip == null || playerShip.isShuttlePod() || !playerShip.isAlive()) return 0f;
+    }
+
+    private MutableStat calculateShipLocalThreatContribution(ShipAPI ship) {
+        // This shouldn't get called unless the player ship exists
+        ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+
+        
+    }
+
     // TODO: Right now, ships without a FleetMemberAPI cannot be assessed. Too bad!
     //  This should usually only happen if a ship was spawned directly, which I'm pretty sure shouldn't happen
     //  under normal circumstances. If it becomes a problem I'll fix it.
@@ -159,6 +228,7 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
         MutableStat threatRating = fleetMemberThreatRatings.get(id);
 
         if (threatRating == null) {
+            log("[RSTM] Queried threat of fleet member not assessed initially, doing so now");
             threatRating = initialAssessFleetMember(ship);
             fleetMemberThreatRatings.put(id, threatRating);
         }
@@ -166,12 +236,15 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
         return threatRating;
     }
 
-    // TODO: Exclude strike craft from fleet member threat assessment
+    public MutableStat getFleetMemberThreatRatingCopy(FleetMemberAPI ship) {
+        return getFleetMemberThreatRating(ship).createCopy();
+    }
 
-    // Returns the assessed threat rating of the given fleet member.
-    // Doesn't apply any extra modifiers, meant to get a baseline threat rating for the start of battle.
     private MutableStat initialAssessFleetMember(FleetMemberAPI ship) {
         MutableStat threat = new MutableStat(0f);
+
+        // TODO: Placeholder until I decide to actually deal with stations and fighters
+        if (ship.isStation() || ship.isFighterWing()) return threat;
 
         ShipVariantAPI variant = ship.getVariant();
 

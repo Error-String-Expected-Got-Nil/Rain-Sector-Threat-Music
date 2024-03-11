@@ -4,10 +4,17 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SoundPlayerAPI;
 import com.fs.starfarer.api.combat.BaseEveryFrameCombatPlugin;
 import com.fs.starfarer.api.combat.CombatEngineAPI;
+import com.fs.starfarer.api.combat.MutableStat;
+import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import data.scripts.RSTM.RSTM_LayeredMusicTrack;
 import data.scripts.RSTM.RSTM_Utils;
+import org.lazywizard.lazylib.MathUtils;
+import org.lazywizard.lazylib.combat.CombatUtils;
+import org.lwjgl.util.vector.Vector2f;
 
+import java.awt.*;
 import java.util.List;
 
 public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
@@ -17,6 +24,8 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
     private static final char jukeboxThreatLevelDecKey = 'm';
     private static final char jukeboxTrackIncKey = 'l';
     private static final char jukeboxTrackDecKey = 'j';
+    private static final char threatAssessorDisplayToggleKey = 'n';
+    private static final char showNearestShipThreatKey = 'b';
 
     private static final int minimumTrack = -1;
     private static int maximumTrack = -1;
@@ -27,6 +36,8 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
 
     private boolean jukeboxOn = false;
     private boolean statusDisplayOn = true;
+    private boolean threatAssessorDisplayOn = true;
+    private final Color floatingThreatTextColor = new Color(145, 255, 200, 179);
     private int trackNumber = -1;
     private int threatLevel = -1;
 
@@ -66,6 +77,22 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
                     false);
             engine.maintainStatusForPlayerShip("RSTM_jukebox_statusDisplayOn", "",
                     "Jukebox Display On", "Press k to toggle visibility", false);
+        }
+
+        RSTM_ThreatAssessor assessor = RSTM_ThreatAssessor.currentThreatAssessor;
+
+        if (threatAssessorDisplayOn && assessor != null) {
+            engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_localThreat", "",
+                    "Assessed Local Threat:", Float.toString(assessor.lastLocalThreat), false);
+            engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_situationalThreat", "",
+                    "Assessed Situational Threat:", Float.toString(assessor.lastSituationalThreat), false);
+            engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_outmatchPercent", "",
+                    "Outmatch Ambient Threat Modifier:", assessor.lastOutmatchPercent + "%",
+                    false);
+            engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_ambientThreat", "",
+                    "Assessed Ambient Threat:", Float.toString(assessor.lastAmbientThreat), false);
+            engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_isOn", "",
+                    "Threat Assessor Display On", "Press n to toggle visibility", false);
         }
     }
 
@@ -159,6 +186,49 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
                     } else {
                         soundPlayer.playUISound("ui_selection_cleared", 1f, 1f);
                     }
+                    break;
+
+                case threatAssessorDisplayToggleKey:
+                    threatAssessorDisplayOn = !threatAssessorDisplayOn;
+                    soundPlayer.playUISound("ui_right_click_command_given", 1f, 1f);
+                    break;
+
+                case showNearestShipThreatKey:
+                    if (RSTM_ThreatAssessor.currentThreatAssessor == null) return;
+
+                    CombatEngineAPI engine = Global.getCombatEngine();
+
+                    soundPlayer.playUISound("ui_right_click_command_given", 1f, 1f);
+
+                    Vector2f playerMouse = engine.getPlayerShip().getMouseTarget();
+
+                    ShipAPI nearestShip = null;
+                    float nearestShipDistance = Float.MAX_VALUE;
+                    for (ShipAPI ship : engine.getShips()) {
+                        float distance = MathUtils.getDistance(playerMouse, ship.getLocation());
+
+                        if (distance < nearestShipDistance) {
+                            nearestShip = ship;
+                            nearestShipDistance = distance;
+                        }
+                    }
+
+                    if (nearestShip != null) {
+                        FleetMemberAPI fleetMember = CombatUtils.getFleetMember(nearestShip);
+
+                        if (fleetMember != null) {
+                            MutableStat threat = RSTM_ThreatAssessor.currentThreatAssessor
+                                    .getFleetMemberThreatRatingCopy(fleetMember);
+
+                            String floatingTextString =
+                                      "Ship: " + fleetMember + "\n"
+                                    + "Threat Rating: " + threat.getModifiedValue();
+
+                            engine.addFloatingText(playerMouse, floatingTextString, 30f, floatingThreatTextColor,
+                                    nearestShip, 1f, 0f);
+                        }
+                    }
+
                     break;
             }
         }
