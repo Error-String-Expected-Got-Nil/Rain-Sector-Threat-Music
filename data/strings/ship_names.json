@@ -1,0 +1,46 @@
+{
+    "RSTM_RAIN_WORLD": [
+        # Echo names
+        "Nineteen Spades", "Endless Reflections",
+        "Four Needles", "Under Plentiful Leaves",
+        "Droplets Upon", "Five Large Droplets",
+        "A Bell", "Eighteen Amber Beads",
+        "Six Grains of Gravel", "Mountains Abound",
+        "Two Sprouts", "Twelve Brackets",
+
+        # Downpour echo names
+        "Twelve Beads", "Among Burning Skies",
+        "Distant Towers", "Upon Cracked Earth",
+        "Rhinestones Beneath", "Shattered Glass",
+        "Eight Spots", "On a Blind Eye",
+    ],
+
+    "RSTM_RAIN_WORLD_AUTOMATED": [
+        # Iterator names
+        "Chasing Wind",
+        "Epoch of Clouds",
+        "Erratic Pulse",
+        "Five Pebbles",
+        "Gazing Stars",
+        "Looks to the Moon",
+        "No Significant Harassment",
+        "Pleading Intellect",
+        "Secluded Instinct",
+        "Seven Red Suns",
+        "Sliver of Straw",
+        "Unparalleled Innocence",
+        "Wandering Omen",
+
+        # Unofficial iterator names
+        "Boundless Brilliant Light",
+        "Countless Crashing Waves",
+        "Dreams of Far Shores",
+        "Eleven Golden Threads",
+        "Four Spiraling Webs",
+        "Lingering Horizon",
+        "Unbounded Firmament",
+        "Vast Insight",
+        "Waking Fortitude",
+        "Words Whispered on Wind",
+    ],
+}
