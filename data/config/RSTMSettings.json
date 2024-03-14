@@ -57,6 +57,9 @@
             "outmatchMaxRatio": 2,
             # Multiplier to the outmatch value contribution of ships in reserve
             "outmatchReserveMultiplier": 0.5,
+
+            # Threat per deployed enemy station
+            "stationThreat": 40,
         },
 
         # Threat from ongoing statuses on your ship, such as flux/hull/armor level and whether you're overloaded or flamed out

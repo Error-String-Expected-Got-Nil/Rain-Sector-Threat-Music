@@ -48,7 +48,6 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
             disabled = false;
 
             CombatFleetManagerAPI enemyFleet = engine.getFleetManager(FleetSide.ENEMY);
-            //CombatFleetManagerAPI playerFleet = engine.getFleetManager(FleetSide.PLAYER);
 
             log("[RSTM] Assessing enemy fleet");
             for (FleetMemberAPI ship : enemyFleet.getReservesCopy()) {
@@ -56,21 +55,9 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
                 fleetMemberThreatRatings.put(ship.getId(), initialAssessFleetMember(ship));
             }
 
-            // Don't need player fleet threat ratings
-            /*
-            logv(" ");
-            log("[RSTM] Assessing player fleet");
-            for (FleetMemberAPI ship : playerFleet.getReservesCopy()) {
-                logv(" ");
-                fleetMemberThreatRatings.put(ship.getId(), initialAssessFleetMember(ship));
-            }
-            */
-
             currentThreatAssessor = this;
         }
     }
-
-    // TODO: Account for stations
 
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
@@ -186,7 +173,12 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
         }
         enemyDeployedThreat.setBaseValue(baseEnemyDeployedThreat);
 
-        return enemyReservesThreat.getModifiedValue() + enemyDeployedThreat.getModifiedValue();
+        float stationThreat = 0f;
+        for (DeployedFleetMemberAPI station : enemyFleet.getStations()) {
+            stationThreat += settings.ambientThreatStation;
+        }
+
+        return enemyReservesThreat.getModifiedValue() + enemyDeployedThreat.getModifiedValue() + stationThreat;
     }
 
     private float getOutmatchModifier() {
@@ -297,7 +289,11 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
             return new MutableStat(wingSpec.getOpCost(null) * settings.localThreatFighterThreatPerOP
                     / wingSpec.getNumFighters());
         } else {
-            MutableStat localThreat = getFleetMemberThreatRatingCopy(CombatUtils.getFleetMember(ship));
+            FleetMemberAPI fleetMember = CombatUtils.getFleetMember(ship);
+
+            if (fleetMember == null) return new MutableStat(0f);
+
+            MutableStat localThreat = getFleetMemberThreatRatingCopy(fleetMember);
 
             float minRange = getShipMinLocalThreatRange(ship);
 
@@ -365,10 +361,6 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
         threatRating.modifyPercent("hullLevel", settings.threatModMinHull * (1f - ship.getHullLevel()));
     }
 
-    // TODO: Right now, ships without a FleetMemberAPI cannot be assessed. Too bad!
-    //  This should usually only happen if a ship was spawned directly, which I'm pretty sure shouldn't happen
-    //  under normal circumstances. If it becomes a problem I'll fix it.
-
     private MutableStat getFleetMemberThreatRating(FleetMemberAPI ship) {
         if (ship == null) {
             log("[RSTM] Attempted to get threat rating of null fleet member, returning 0");
@@ -391,10 +383,10 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
         return getFleetMemberThreatRating(ship).createCopy();
     }
 
+    // TODO: Increased threat for specific ships
     private MutableStat initialAssessFleetMember(FleetMemberAPI ship) {
         MutableStat threat = new MutableStat(0f);
 
-        // TODO: Placeholder until I decide to actually deal with stations and fighters
         if (ship.isStation() || ship.isFighterWing()) return threat;
 
         ShipVariantAPI variant = ship.getVariant();

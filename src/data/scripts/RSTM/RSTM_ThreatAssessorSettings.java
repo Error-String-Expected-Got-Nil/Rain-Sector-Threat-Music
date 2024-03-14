@@ -41,6 +41,8 @@ public class RSTM_ThreatAssessorSettings {
     public final float outmatchMaxRatio;
     public final float outmatchReserveMultiplier;
 
+    public final float ambientThreatStation;
+
     public final float situationalThreatGlobalMultiplier;
     public final float situationalThreatOverload;
     public final float situationalThreatFlamedOut;
@@ -105,6 +107,8 @@ public class RSTM_ThreatAssessorSettings {
             outmatchMaxRatio = (float) ambient.getDouble("outmatchMaxRatio");
 
             outmatchReserveMultiplier = (float) ambient.getDouble("outmatchReserveMultiplier");
+
+            ambientThreatStation = (float) ambient.getDouble("stationThreat");
 
             JSONObject situational = settings.getJSONObject("situationalThreatSettings");
 

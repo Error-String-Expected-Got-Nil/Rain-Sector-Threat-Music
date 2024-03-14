@@ -29,6 +29,8 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
             currentMusicPlayer = this;
             disabled = false;
             Global.getSoundPlayer().setSuspendDefaultMusicPlayback(true);
+            Global.getSoundPlayer().pauseMusic();
+            Global.getSoundPlayer().pauseCustomMusic();
         }
     }
 
@@ -114,6 +116,8 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
 
     // Debug placeholder for now. Will make a random weighted selection based on combat participants and whether the
     // battle is a simulator fight in the future.
+
+    // TODO: Weighted selection system
     private RSTM_LayeredMusicTrack selectTrack() {
         return RSTMModPlugin.musicTracks.get("sky_islands");
     }
