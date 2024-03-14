@@ -82,15 +82,18 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
         RSTM_ThreatAssessor assessor = RSTM_ThreatAssessor.currentThreatAssessor;
 
         if (threatAssessorDisplayOn && assessor != null) {
+            engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_trackThreatLevel", "",
+                    "Current Track Threat Level:", Integer.toString(player.getTrackThreatLevel()), false);
             engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_localThreat", "",
                     "Assessed Local Threat:", Float.toString(assessor.lastLocalThreat), false);
             engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_situationalThreat", "",
                     "Assessed Situational Threat:", Float.toString(assessor.lastSituationalThreat), false);
-            engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_outmatchPercent", "",
-                    "Outmatch Ambient Threat Modifier:", assessor.lastOutmatchPercent + "%",
-                    false);
             engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_ambientThreat", "",
                     "Assessed Ambient Threat:", Float.toString(assessor.lastAmbientThreat), false);
+            engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_currentThreat", "",
+                    "Current Threat:", Float.toString(assessor.lastCurrentThreat), false);
+            engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_totalThreat", "",
+                    "Total Threat:", Float.toString(assessor.lastTotalThreat), false);
             engine.maintainStatusForPlayerShip("RSTM_threatAssessorDisplay_isOn", "",
                     "Threat Assessor Display On", "Press n to toggle visibility", false);
         }
@@ -198,9 +201,13 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
 
                     CombatEngineAPI engine = Global.getCombatEngine();
 
+                    ShipAPI playerShip = engine.getPlayerShip();
+
+                    if (playerShip == null || playerShip.isShuttlePod() || !playerShip.isAlive()) return;
+
                     soundPlayer.playUISound("ui_right_click_command_given", 1f, 1f);
 
-                    Vector2f playerMouse = engine.getPlayerShip().getMouseTarget();
+                    Vector2f playerMouse = playerShip.getMouseTarget();
 
                     ShipAPI nearestShip = null;
                     float nearestShipDistance = Float.MAX_VALUE;
@@ -217,12 +224,15 @@ public class RSTM_DebugMode extends BaseEveryFrameCombatPlugin {
                         FleetMemberAPI fleetMember = CombatUtils.getFleetMember(nearestShip);
 
                         if (fleetMember != null) {
-                            MutableStat threat = RSTM_ThreatAssessor.currentThreatAssessor
+                            MutableStat ambientThreat = RSTM_ThreatAssessor.currentThreatAssessor
                                     .getFleetMemberThreatRatingCopy(fleetMember);
+                            MutableStat localThreat = RSTM_ThreatAssessor.currentThreatAssessor
+                                    .calculateShipLocalThreatContribution(nearestShip);
 
                             String floatingTextString =
                                       "Ship: " + fleetMember + "\n"
-                                    + "Threat Rating: " + threat.getModifiedValue();
+                                    + "Threat Rating: " + ambientThreat.getModifiedValue() + "\n"
+                                    + "Local Threat Contribution: " + localThreat.getModifiedValue();
 
                             engine.addFloatingText(playerMouse, floatingTextString, 30f, floatingThreatTextColor,
                                     nearestShip, 1f, 0f);

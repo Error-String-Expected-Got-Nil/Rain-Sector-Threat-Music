@@ -2,7 +2,7 @@
     # Global volume control
     # For technical reasons, music played by RSTM is affected by the "Sound" volume slider in the settings and not the "Music" volume slider
     # You may want to reduce your sound volume and increase this value if threat music is getting drowned out by combat sounds and you don't want it to be
-    "globalVolumeModifier": 1,
+    "globalVolumeModifier": 1.3,
 
     # Settings for the combat threat rating assessor
     # All "mod" settings are percentage modifiers
@@ -12,7 +12,7 @@
         # Should static threat ratings for ships be logged?
         "doLogging": true,
         # Also print extra information, including the itemized threat assessment for every assessed ship
-        "verboseLogging": true,
+        "verboseLogging": false,
 
         # Direct multiplier to global threat value
         # Threat is mostly based on enemy DP, especially deployed enemy DP, and threat curves and these settings were made with 400 DP battles in mind
@@ -22,13 +22,20 @@
         # Settings for the baseline threat rating of any given ship
         "shipBaseThreatRatingSettings": {
             "threatPerDP": 1,
-            # Easier to set this to all zeroes than to remove it
             "threatPerHullSize" : [0, 0, 0, 0],
 
             "threatModPerDMod": -10,
             "threatModPerSMod": 10,
             "threatModPerOfficerLevel": 5,
             "threatModNoncombat": -75,
+
+            # For ships above 70% CR, add a percentage modifier from 0 -> threatModMaxCR from 70% -> 100% CR
+            # For ships below 70% CR, add a percentage modifier from 0 -> threatModMinCR from 70% -> 0% CR
+            "threatModMaxCR": 15,
+            "threatModMinCR": -90,
+
+            # As a ship goes from 100% -> 0% hull, threat gets a percentage modifier from 0% -> threatModMinHull%
+            "threatModMinHull": -30,
         },
 
         # Threat from overall enemy strength relative to you
@@ -40,7 +47,7 @@
             "reservedMod": -90,
 
             # When determining if a side is outnumbered/outmatched, count each hull size as being worth this much
-            "outmatchHullValue": [1, 1.5, 2, 4],
+            "outmatchHullValue": [1, 1.5, 2.5, 4],
             # The "outmatched" ambient threat modifier scales from outmatchMinMod -> 0 -> outmatchMaxMod 
             # as the ratio of enemy ships : player ships goes from outmatchMinRatio -> 1 -> outmatchMaxRatio
             # Does not actually validate the ranges for the values so set them properly unless you want to mess with the math
@@ -84,7 +91,7 @@
             "fighterThreatRange": 600,
             "fighterThreatPerOP": 0.5,
 
-            "overloadMod": 150,
+            "overloadMod": 100,
             "flamedOutMod": 50,
             "ventingMod": 25,
         },

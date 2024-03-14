@@ -117,4 +117,8 @@ public class RSTM_MusicPlayer extends BaseEveryFrameCombatPlugin {
     private RSTM_LayeredMusicTrack selectTrack() {
         return RSTMModPlugin.musicTracks.get("sky_islands");
     }
+
+    public int getTrackThreatLevel() {
+        return currentTrack.getThreatLevel();
+    }
 }

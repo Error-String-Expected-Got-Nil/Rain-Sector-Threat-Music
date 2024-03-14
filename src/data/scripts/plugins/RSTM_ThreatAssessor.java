@@ -5,28 +5,32 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.mission.FleetSide;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.RSTM.RSTM_ThreatAssessorSettings;
 import data.scripts.RSTM.RSTM_Utils;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
+import org.lazywizard.lazylib.combat.CombatUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
+    // Maximum amount current threat value can change per second
+    private static final float MAXIMUM_THREAT_DELTA = 20f;
+
     private final Logger logger = Global.getLogger(this.getClass());
     private final RSTM_ThreatAssessorSettings settings = RSTMModPlugin.threatAssessorSettings;
     public static RSTM_ThreatAssessor currentThreatAssessor = null;
 
     private final Map<String, MutableStat> fleetMemberThreatRatings = new HashMap<>();
-    private final Map<ShipAPI, MutableStat> shipLocalThreatContribution = new HashMap<>();
 
     private boolean disabled = true;
     private float stopwatch = 0f;
-    private float threat = 0f;
+    private float currentThreat = 0f;
 
     // Public-access fields with the last recorded interal variables in them, so the debug mode plugin is able to
     // show the values. None of these are actually used in calculations, modifying them won't cause issues.
@@ -34,6 +38,8 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
     public float lastOutmatchPercent = 0f;
     public float lastSituationalThreat = 0f;
     public float lastLocalThreat = 0f;
+    public float lastTotalThreat = 0f;
+    public float lastCurrentThreat = 0f;
 
     @Override
     public void init(CombatEngineAPI engine) {
@@ -42,7 +48,7 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
             disabled = false;
 
             CombatFleetManagerAPI enemyFleet = engine.getFleetManager(FleetSide.ENEMY);
-            CombatFleetManagerAPI playerFleet = engine.getFleetManager(FleetSide.PLAYER);
+            //CombatFleetManagerAPI playerFleet = engine.getFleetManager(FleetSide.PLAYER);
 
             log("[RSTM] Assessing enemy fleet");
             for (FleetMemberAPI ship : enemyFleet.getReservesCopy()) {
@@ -50,21 +56,21 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
                 fleetMemberThreatRatings.put(ship.getId(), initialAssessFleetMember(ship));
             }
 
+            // Don't need player fleet threat ratings
+            /*
             logv(" ");
             log("[RSTM] Assessing player fleet");
             for (FleetMemberAPI ship : playerFleet.getReservesCopy()) {
                 logv(" ");
                 fleetMemberThreatRatings.put(ship.getId(), initialAssessFleetMember(ship));
             }
-
-            // NOTE: In a simulation, the player ship isn't spawned initially and also isn't in reserves.
-            // Will just have to handle that in advance() I think
+            */
 
             currentThreatAssessor = this;
         }
     }
 
-    // TODO: Account for stations, account for fighters, drones?
+    // TODO: Account for stations
 
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
@@ -87,6 +93,17 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
 
         if (musicPlayer == null || musicPlayer.isDisabled()) return;
 
+        for (ShipAPI ship : Global.getCombatEngine().getShips()) {
+            if (ship.getOwner() == 0) continue;
+            if (!ship.isAlive()) continue;
+
+            FleetMemberAPI fleetMember = CombatUtils.getFleetMember(ship);
+
+            if (fleetMember == null) continue;
+
+            assessVariableThreatModifiers(ship, fleetMember);
+        }
+
         MutableStat ambientThreat = new MutableStat(getBaseAmbientThreat());
         ambientThreat.modifyMult("ambientThreatGlobalMultiplier", settings.ambientThreatGlobalMultiplier);
 
@@ -101,6 +118,47 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
                 settings.situationalThreatGlobalMultiplier);
 
         lastSituationalThreat = situationalThreat.getModifiedValue();
+
+        MutableStat localThreat = new MutableStat(getBaseLocalThreat());
+        localThreat.modifyMult("localThreatGlobalMultiplier", settings.localThreatGlobalMultiplier);
+
+        // Local threat is always 0 if there is no player ship so we can use that to tell if there is one
+        if (localThreat.getBaseValue() != 0f) {
+            ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+
+            if (playerShip.getFluxTracker().isOverloaded()) {
+                localThreat.modifyPercent("overloadMod", settings.localThreatOverloadMod);
+            }
+
+            if (playerShip.getEngineController().isFlamedOut()) {
+                localThreat.modifyPercent("flamedOutMod", settings.localThreatFlamedOutMod);
+            }
+
+            if (playerShip.getFluxTracker().isVenting()) {
+                localThreat.modifyPercent("ventingMod", settings.localThreatVentingMod);
+            }
+        }
+
+        lastLocalThreat = localThreat.getModifiedValue();
+
+        MutableStat totalThreat = new MutableStat(ambientThreat.getModifiedValue()
+                + situationalThreat.getModifiedValue() + localThreat.getModifiedValue());
+        totalThreat.modifyMult("globalThreatMultiplier", settings.globalThreatMultiplier);
+
+        lastTotalThreat = totalThreat.getModifiedValue();
+
+        float desiredThreat = totalThreat.getModifiedValue();
+        float threatDelta = (desiredThreat - currentThreat);
+
+        if (Math.abs(threatDelta) < MAXIMUM_THREAT_DELTA * amount) {
+            currentThreat = desiredThreat;
+        } else {
+            currentThreat += MAXIMUM_THREAT_DELTA * amount * Math.signum(threatDelta);
+        }
+
+        lastCurrentThreat = currentThreat;
+
+        musicPlayer.setThreat(currentThreat);
     }
 
     private float getBaseAmbientThreat() {
@@ -210,13 +268,101 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
 
         if (playerShip == null || playerShip.isShuttlePod() || !playerShip.isAlive()) return 0f;
+
+        float localThreat = 0f;
+
+        for (ShipAPI ship : Global.getCombatEngine().getShips()) {
+            if (ship.getOwner() == 0) continue;
+            if (!ship.isAlive()) continue;
+
+            localThreat += calculateShipLocalThreatContribution(ship).getModifiedValue();
+        }
+
+        return localThreat;
     }
 
-    private MutableStat calculateShipLocalThreatContribution(ShipAPI ship) {
+    public MutableStat calculateShipLocalThreatContribution(ShipAPI ship) {
         // This shouldn't get called unless the player ship exists
         ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
 
-        
+        float maxRange = getShipMaxLocalThreatRange(ship);
+        float shipRange = MathUtils.getDistance(playerShip.getLocation(), ship.getLocation());
+
+        if (maxRange < shipRange)
+            return new MutableStat(0f);
+
+        if (ship.getHullSize() == ShipAPI.HullSize.FIGHTER) {
+            FighterWingSpecAPI wingSpec = ship.getWing().getSpec();
+
+            return new MutableStat(wingSpec.getOpCost(null) * settings.localThreatFighterThreatPerOP
+                    / wingSpec.getNumFighters());
+        } else {
+            MutableStat localThreat = getFleetMemberThreatRatingCopy(CombatUtils.getFleetMember(ship));
+
+            float minRange = getShipMinLocalThreatRange(ship);
+
+            float rangeMult;
+            if (shipRange < minRange) {
+                rangeMult = 1f;
+            } else {
+                rangeMult = 1f - (shipRange - minRange) / (maxRange - minRange);
+            }
+
+            localThreat.modifyMult("rangeMultiplier", rangeMult);
+
+            return localThreat;
+        }
+    }
+
+    private float getShipMaxLocalThreatRange(ShipAPI ship) {
+        switch (ship.getHullSize()) {
+            case FRIGATE:
+                return settings.localThreatFrigateMaxRange;
+            case DESTROYER:
+                return settings.localThreatDestroyerMaxRange;
+            case CRUISER:
+                return settings.localThreatCruiserMaxRange;
+            case CAPITAL_SHIP:
+                return settings.localThreatCapitalMaxRange;
+            case FIGHTER:
+                return settings.localThreatFighterRange;
+            default:
+                return 0f;
+        }
+    }
+
+    private float getShipMinLocalThreatRange(ShipAPI ship) {
+        switch (ship.getHullSize()) {
+            case FRIGATE:
+                return settings.localThreatFrigateMinRange;
+            case DESTROYER:
+                return settings.localThreatDestroyerMinRange;
+            case CRUISER:
+                return settings.localThreatCruiserMinRange;
+            case CAPITAL_SHIP:
+                return settings.localThreatCapitalMinRange;
+            case FIGHTER:
+                return settings.localThreatFighterRange;
+            default:
+                return 0f;
+        }
+    }
+
+    private void assessVariableThreatModifiers(ShipAPI ship, FleetMemberAPI fleetMember) {
+        MutableStat threatRating = getFleetMemberThreatRating(fleetMember);
+
+        float combatReadiness = ship.getCurrentCR();
+        float percentModifierCR = 0f;
+        if (!MathUtils.equals(combatReadiness, 0.7f)) {
+            if (combatReadiness > 0.7f) {
+                percentModifierCR = settings.threatModMaxCR * (combatReadiness - 0.7f) / 0.3f;
+            } else {
+                percentModifierCR = settings.threatModMinCR * (0.7f - combatReadiness) / 0.7f;
+            }
+        }
+
+        threatRating.modifyPercent("combatReadiness", percentModifierCR);
+        threatRating.modifyPercent("hullLevel", settings.threatModMinHull * (1f - ship.getHullLevel()));
     }
 
     // TODO: Right now, ships without a FleetMemberAPI cannot be assessed. Too bad!
@@ -224,6 +370,11 @@ public class RSTM_ThreatAssessor extends BaseEveryFrameCombatPlugin {
     //  under normal circumstances. If it becomes a problem I'll fix it.
 
     private MutableStat getFleetMemberThreatRating(FleetMemberAPI ship) {
+        if (ship == null) {
+            log("[RSTM] Attempted to get threat rating of null fleet member, returning 0");
+            return new MutableStat(0f);
+        }
+
         String id = ship.getId();
         MutableStat threatRating = fleetMemberThreatRatings.get(id);
 

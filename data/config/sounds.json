@@ -21,7 +21,6 @@
         {"file": "sounds/RSTM/layered/SI/noise.ogg", "pitch": 1, "volume": 1}
     ],
 
-    # Panic seems to be unused by Rain World and by extension this mod, but there isn't much reason to remove it.
     "RSTM_SI_panic": [
         {"file": "sounds/RSTM/layered/SI/panic.ogg", "pitch": 1, "volume": 1}
     ],

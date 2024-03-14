@@ -11,6 +11,8 @@ public class RSTM_ThreatAssessorSettings {
     public final boolean doLogging;
     public final boolean verboseLogging;
 
+    public final float globalThreatMultiplier;
+
     public final float threatPerDP;
     public final float threatFrigate;
     public final float threatDestroyer;
@@ -21,6 +23,10 @@ public class RSTM_ThreatAssessorSettings {
     public final float threatModPerSMod;
     public final float threatModPerOfficerLevel;
     public final float threatModNoncombat;
+
+    public final float threatModMaxCR;
+    public final float threatModMinCR;
+    public final float threatModMinHull;
 
     public final float ambientThreatGlobalMultiplier;
     public final float ambientThreatModReserved;
@@ -62,6 +68,8 @@ public class RSTM_ThreatAssessorSettings {
             doLogging = settings.getBoolean("doLogging");
             verboseLogging = settings.getBoolean("verboseLogging");
 
+            globalThreatMultiplier = (float) settings.getDouble("globalThreatMultiplier");
+
             JSONObject baseline = settings.getJSONObject("shipBaseThreatRatingSettings");
 
             threatPerDP = (float) baseline.getDouble("threatPerDP");
@@ -75,6 +83,10 @@ public class RSTM_ThreatAssessorSettings {
             threatModPerSMod = (float) baseline.getDouble("threatModPerSMod");
             threatModPerOfficerLevel = (float) baseline.getDouble("threatModPerOfficerLevel");
             threatModNoncombat = (float) baseline.getDouble("threatModNoncombat");
+
+            threatModMaxCR = (float) baseline.getDouble("threatModMaxCR");
+            threatModMinCR = (float) baseline.getDouble("threatModMinCR");
+            threatModMinHull = (float) baseline.getDouble("threatModMinHull");
 
             JSONObject ambient = settings.getJSONObject("ambientThreatSettings");
 
